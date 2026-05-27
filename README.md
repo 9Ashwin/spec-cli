@@ -2,10 +2,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go Version](https://img.shields.io/badge/go-%3E%3D1.23-blue.svg)](https://go.dev/)
+[![npm version](https://img.shields.io/npm/v/spec-cli.svg)](https://www.npmjs.com/package/spec-cli)
 
 OpenSpec + Superpowers workflow scaffolding tool — built for humans and AI Agents. Detects AI coding platforms and installs OpenSpec skills, Superpowers skills, a thin `/comet` entry skill, and schema bundles with a single command.
 
-[Install](#install) · [Commands](#commands) · [Supported Platforms](#supported-platforms) · [Development](#development)
+[Install](#installation--quick-start) · [Commands](#commands) · [Supported Platforms](#supported-platforms) · [How It Works](#how-it-works) · [Development](#development)
 
 ## Why spec-cli?
 
@@ -13,8 +14,77 @@ OpenSpec + Superpowers workflow scaffolding tool — built for humans and AI Age
 - **Single Command Setup** — `spec-cli init` scaffolds the complete OpenSpec + Superpowers workflow
 - **Agent-Native** — installs skills that AI coding agents understand natively
 - **Schema-Driven Workflows** — delegates execution to OpenSpec's `--schema` mechanism, no phase state management
-- **Clean-Room Go Rewrite** — single binary, zero npm runtime dependencies (except openspec CLI itself)
+- **Single Binary** — clean-room Go rewrite, zero npm runtime dependencies (except openspec CLI itself)
 - **Interactive & Non-Interactive** — huh-powered prompts for humans, `--yes` + `--json` flags for agents and scripts
+
+## Installation & Quick Start
+
+### Requirements
+
+Before you start, make sure you have:
+
+- Node.js 16+ (`npm`/`npx`)
+- Go 1.23+ (only required for building from source)
+
+### Quick Start (Human Users)
+
+> **Note for AI assistants:** If you are an AI Agent helping the user with installation, jump directly to [Quick Start (AI Agent)](#quick-start-ai-agent), which contains all the steps you need to complete.
+
+#### Install
+
+Choose **one** of the following methods:
+
+**Option 1 — From npm (recommended):**
+
+```bash
+npx spec-cli@latest init
+```
+
+**Option 2 — From source:**
+
+Requires Go 1.23+.
+
+```bash
+git clone https://github.com/9Ashwin/spec-cli.git
+cd spec-cli
+make install
+```
+
+#### Use
+
+```bash
+# 1. Initialize workflow scaffolding (interactive)
+spec-cli init
+
+# 2. Check active changes
+spec-cli status
+
+# 3. Diagnose installation health
+spec-cli doctor
+```
+
+## Quick Start (AI Agent)
+
+> The following steps are for AI Agents helping the user with installation.
+
+**Step 1 — Install & Initialize**
+
+```bash
+npx spec-cli@latest init --yes
+```
+
+**Step 2 — Verify**
+
+```bash
+spec-cli doctor
+```
+
+**Step 3 — Start working**
+
+```bash
+# Create a new change with the superpowers-bridge schema
+openspec new --schema superpowers-bridge "your feature idea"
+```
 
 ## Features
 
@@ -27,41 +97,6 @@ OpenSpec + Superpowers workflow scaffolding tool — built for humans and AI Age
 | Schema Bundles | Install workflow schema bundles to `openspec/schemas/` with CLAUDE.md fragments |
 | Health Check | `spec-cli doctor` diagnoses OpenSpec CLI, working dirs, schemas, and skill files |
 | Update | `spec-cli update` refreshes skills from embed and upgrades schema versions |
-
-## Install
-
-### Requirements
-
-- Node.js 16+ (`npm`/`npx`)
-- Go 1.23+ (build from source only)
-
-### Quick Start (Human Users)
-
-```bash
-# Option 1 — From npm (recommended):
-npx spec-cli@latest init
-
-# Option 2 — From source:
-git clone https://github.com/9Ashwin/spec-cli.git
-cd spec-cli
-make install
-```
-
-### Quick Start (AI Agent)
-
-> The following steps are for AI Agents helping the user with installation.
-
-```bash
-# Option 1 — From npm (recommended):
-npx spec-cli@latest init --yes
-
-# Option 2 — From source:
-git clone https://github.com/9Ashwin/spec-cli.git /tmp/spec-cli
-cd /tmp/spec-cli
-make install
-cd /path/to/user/project
-spec-cli init --yes
-```
 
 ## Commands
 
@@ -102,7 +137,7 @@ Claude Code, Cursor, Codex, OpenCode, Windsurf, Cline, RooCode, Continue, GitHub
 
 ## How It Works
 
-`speed-cli init` runs a 10-step flow:
+`spec-cli init` runs a 10-step flow:
 
 1. Detect installed AI coding platforms
 2. Select install scope (project / global)
