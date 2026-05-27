@@ -64,7 +64,13 @@ openspec list --json
 
 不要在创建或选择 change 后停下。
 
-每次 `opsx:super` 调用进入 `superpowers-bridge` 后，都要检查 OpenSpec status 和 schema artifact instructions，然后从下一个未完成的 schema step 继续。对无歧义的步骤自动推进：
+每次 `opsx:super` 调用进入 `superpowers-bridge` 后，都要先检查 OpenSpec status：
+
+```bash
+openspec status --change "<name>" --json
+```
+
+然后读取当前 schema artifact instructions，从下一个未完成的 schema step 继续。对无歧义的步骤自动推进：
 
 brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply -> verify -> retrospective/archive。
 
@@ -86,9 +92,7 @@ brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply -> verify ->
 openspec new change "<kebab-case-name>" --schema superpowers-bridge --description "<原始需求>"
 ```
 
-创建后按 schema artifact instructions 推进：
-
-brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply -> verify -> retrospective/archive。
+创建后进入连续执行，推进这个新 change。
 
 ## 遵守 Bridge 路由
 

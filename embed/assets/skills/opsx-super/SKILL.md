@@ -64,7 +64,13 @@ For direct PR cases, tell the user this does not need an `opsx:super` change and
 
 Do not stop after creating or selecting a change.
 
-For every `opsx:super` invocation that enters `superpowers-bridge`, inspect OpenSpec status and the schema artifact instructions, then continue from the next incomplete schema step. Advance through unambiguous steps automatically:
+For every `opsx:super` invocation that enters `superpowers-bridge`, inspect OpenSpec status first:
+
+```bash
+openspec status --change "<name>" --json
+```
+
+Then read the current schema artifact instructions and continue from the next incomplete schema step. Advance through unambiguous steps automatically:
 
 brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply -> verify -> retrospective/archive.
 
@@ -86,9 +92,7 @@ Convert the user's request to a short kebab-case name, then run:
 openspec new change "<kebab-case-name>" --schema superpowers-bridge --description "<original request>"
 ```
 
-After creation, follow the schema artifact instructions:
-
-brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply -> verify -> retrospective/archive.
+After creation, enter Continuous Execution for the new change.
 
 ## Respect Bridge Routing
 
