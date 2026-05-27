@@ -7,7 +7,14 @@ description: "当用户要通过 /opsx:super 启动、路由或继续 OpenSpec +
 
 把它作为 OpenSpec + Superpowers 工作的统一入口。它负责路由：判断是否需要 schema change，避免重复创建 active change，然后把执行交给 OpenSpec 的 `superpowers-bridge` schema。
 
+<EXTREMELY-IMPORTANT>
+如果请求进入 `superpowers-bridge`，不要在创建或选择 change 后停下。
+始终检查 OpenSpec status、读取 schema artifact instructions、调用必需的 Superpowers skills，并持续推进到明确的停止条件。
+</EXTREMELY-IMPORTANT>
+
 ## 指令优先级
+
+用户指令始终优先。如果用户明确说不要创建 schema change，不要用本 skill 覆盖用户；说明取舍，然后按用户要求走。
 
 路由工作时按以下顺序处理：
 
@@ -72,7 +79,27 @@ openspec status --change "<name>" --json
 
 然后读取当前 schema artifact instructions，从下一个未完成的 schema step 继续。对无歧义的步骤自动推进：
 
-brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply -> verify -> retrospective/archive。
+brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply action -> verify -> retrospective/archive。
+
+每个 schema step 由 schema instructions 决定适用哪个 Superpowers skill。先调用相关 Superpowers skill，再执行该 schema step。不要在 schema step 要求 skill 时凭记忆手写 artifact。
+
+artifact step 要从 OpenSpec 取得具体 instructions：
+
+```bash
+openspec instructions <artifact-id> --change "<name>" --json
+```
+
+使用返回的 `instruction`、`template`、`outputPath` 和 `dependencies`。把 artifact 写到 `outputPath`，然后重新运行 status 再推进。
+
+apply action 不要在 status 里寻找 `apply` artifact。要从 OpenSpec 取得 action instructions：
+
+```bash
+openspec instructions apply --change "<name>" --json
+```
+
+使用返回的 `contextFiles`、`tasks`、`progress` 和 `instruction` 来执行实现阶段。
+
+不要把连续执行委托给 `openspec-continue-change` 或 `/opsx:continue`；那个 skill 设计上会在一个 artifact 后停止。`opsx:super` 自己负责 status -> instructions -> artifact/action -> status 循环，直到遇到下面的停止条件。
 
 只有遇到以下情况才停止：
 
@@ -104,7 +131,7 @@ schema 产物应写入 `openspec/changes/<name>/`。
 
 ## 危险信号
 
-发现以下想法时，停止并重新路由：
+这些想法表示你正在自我合理化。停止，重新读取 OpenSpec status 和 schema instructions 后再继续：
 
 - “这是功能，但很小，可以跳过 schema。”
 - “我先直接跑 brainstorming，之后再移动文件。”

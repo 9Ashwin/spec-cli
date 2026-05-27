@@ -7,7 +7,14 @@ description: "Use when the user wants to start, route, or continue OpenSpec + Su
 
 Use this as the front door for OpenSpec + Superpowers work. Its job is routing: decide whether this needs a schema change, avoid duplicate active changes, then hand execution to OpenSpec's `superpowers-bridge` schema.
 
+<EXTREMELY-IMPORTANT>
+If the request enters `superpowers-bridge`, do not stop after creating or selecting a change.
+Always inspect OpenSpec status, read schema artifact instructions, invoke the required Superpowers skills, and continue until a defined stop condition.
+</EXTREMELY-IMPORTANT>
+
 ## Instruction Priority
+
+User instructions always take precedence. If the user explicitly says not to create a schema change, do not override them; explain the tradeoff and follow their requested path.
 
 When routing work, follow this order:
 
@@ -72,7 +79,27 @@ openspec status --change "<name>" --json
 
 Then read the current schema artifact instructions and continue from the next incomplete schema step. Advance through unambiguous steps automatically:
 
-brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply -> verify -> retrospective/archive.
+brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply action -> verify -> retrospective/archive.
+
+For each schema step, the schema instructions decide which Superpowers skill applies. Invoke the relevant Superpowers skill before acting on that schema step. Do not hand-write artifacts from memory when a schema step requires a skill.
+
+For artifact steps, get the concrete instructions from OpenSpec:
+
+```bash
+openspec instructions <artifact-id> --change "<name>" --json
+```
+
+Use the returned `instruction`, `template`, `outputPath`, and `dependencies`. Write the artifact to `outputPath`, then re-run status before advancing.
+
+For the apply action, do not look for an `apply` artifact in status. Get the action instructions from OpenSpec:
+
+```bash
+openspec instructions apply --change "<name>" --json
+```
+
+Use the returned `contextFiles`, `tasks`, `progress`, and `instruction` to run the implementation phase.
+
+Do not delegate Continuous Execution to `openspec-continue-change` or `/opsx:continue`; that skill intentionally stops after one artifact. `opsx:super` owns the status -> instructions -> artifact/action -> status loop until a stop condition below.
 
 Stop only when one of these happens:
 
@@ -104,7 +131,7 @@ Do not silently fall back to raw `brainstorming`, `writing-plans`, or hand-writt
 
 ## Red Flags
 
-Stop and re-route when you notice:
+These thoughts mean STOP. Re-read OpenSpec status and schema instructions before continuing:
 
 - "This is a feature, but it is small enough to skip the schema."
 - "I'll run brainstorming directly and move the file later."

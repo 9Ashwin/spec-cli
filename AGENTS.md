@@ -63,7 +63,7 @@ The primary users are humans working with AI coding tools, and AI agents automat
 | `main.go` | Calls `os.Exit(cmd.Execute())` |
 | `cmd/root.go` | Root Cobra command, version template, subcommand registration |
 | `cmd/helpers.go` | Shared path resolution, JSON printing, conditional printer, constants |
-| `cmd/init.go` | Interactive/non-interactive 10-step scaffolding flow |
+| `cmd/init.go` | Interactive/non-interactive scaffolding flow |
 | `cmd/status.go` | `openspec list --json` wrapper for active changes |
 | `cmd/update.go` | Refresh embedded skills and schema bundles |
 | `cmd/doctor.go` | Diagnose OpenSpec CLI, schemas, and installed skill files |
@@ -91,8 +91,7 @@ The primary users are humans working with AI coding tools, and AI agents automat
 6. Ensure the OpenSpec CLI is available, then run `openspec init <path> --tools <ids>` through `internal/openspec`.
 7. Detect Superpowers in the Claude plugin cache.
 8. Copy the embedded `opsx:super` skill into each selected platform.
-9. Create `docs/superpowers/specs/` and `docs/superpowers/plans/` for project scope.
-10. Install embedded schema bundles and append locale-specific `CLAUDE.md` adopter fragments.
+9. Install embedded schema bundles and append locale-specific `CLAUDE.md` adopter fragments.
 
 ## Code Rules
 
@@ -136,6 +135,9 @@ The primary users are humans working with AI coding tools, and AI agents automat
 - Binary name: `spec-cli`
 - Release artifacts are built by `make release` / GoReleaser for darwin, linux, and windows.
 - `scripts/install.js` downloads the matching archive and verifies checksums; keep installer changes conservative and cross-platform.
+- For npm releases, bump `package.json`, run `make release VERSION=<npm-version>`, copy `dist/checksums.txt` to the repository root, and verify archive names match `spec-cli-<version>-<os>-<arch>`.
+- `npm publish` requires an authenticated npm session with publish access to `ashwin-spec`; check `npm whoami` before the final publish step.
+- Do not publish a version until the matching git commit and tag have been pushed, because postinstall may fall back to GitHub release downloads when packaged archives are absent.
 
 ## Reference Projects
 

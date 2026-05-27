@@ -66,8 +66,8 @@ spec-cli init
 # Or create one directly from the terminal:
 openspec new change "your-change-name" --schema superpowers-bridge --description "your feature idea"
 
-# Step 3: Follow the schema-guided workflow
-# brainstorming -> design -> plan -> build -> verify -> archive
+# Step 3: Let /opsx:super follow schema instructions continuously
+# brainstorming -> proposal -> design -> specs -> tasks -> plan -> apply -> verify -> archive
 
 # Check active changes
 spec-cli status
@@ -84,12 +84,13 @@ spec-cli doctor
 2. /opsx:super            — start a new change inside an AI coding platform
    or openspec new change — create a change directly from the terminal
 
-3. brainstorming          — clarify requirements and converge on design
-   design                 — write the design artifact
-   plan                   — create the implementation plan
-   build                  — implement and test
+3. /opsx:super continues through OpenSpec instructions
+   brainstorming          — clarify requirements and converge on design
+   proposal/design/specs  — write the schema artifacts
+   tasks/plan             — prepare implementation work
+   apply                  — implement and test from action instructions
    verify                 — prove the result works
-   archive                — archive and sync the spec
+   archive                — archive and sync the spec from the current worktree
 
 4. spec-cli status        — inspect active changes
    spec-cli doctor        — diagnose installation health
@@ -134,7 +135,7 @@ openspec new change "your-change-name" --schema superpowers-bridge --description
 | Superpowers Detection | Check Claude Code plugin cache for installed Superpowers skills |
 | Skill Copy | Copy the opsx:super entry skill from embed to platform skills directories |
 | Schema Bundles | Install workflow schema bundles to `openspec/schemas/` with CLAUDE.md fragments |
-| Health Check | `spec-cli doctor` diagnoses OpenSpec CLI, working dirs, schemas, and skill files |
+| Health Check | `spec-cli doctor` diagnoses OpenSpec CLI, project path, schemas, and skill files |
 | Update | `spec-cli update` refreshes skills from embed and upgrades schema versions |
 
 ## Commands
@@ -198,7 +199,7 @@ Claude Code, Cursor, Codex, OpenCode, Windsurf, Cline, RooCode, Continue, GitHub
 
 ## How It Works
 
-`spec-cli init` runs a 10-step flow:
+`spec-cli init` runs a 9-step flow:
 
 1. Detect installed AI coding platforms
 2. Select install scope (project / global)
@@ -207,11 +208,14 @@ Claude Code, Cursor, Codex, OpenCode, Windsurf, Cline, RooCode, Continue, GitHub
 5. Install OpenSpec CLI + `openspec init <path> --tools <ids>`
 6. Detect Superpowers plugin installation
 7. Copy the opsx:super entry skill to platform skills directories
-8. Create working directories (`docs/superpowers/specs/`, `docs/superpowers/plans/`)
-9. Install schema bundles to `openspec/schemas/<name>/`
-10. Append CLAUDE.md workflow fragment
+8. Install schema bundles to `openspec/schemas/<name>/`
+9. Append CLAUDE.md workflow fragment
 
 Workflow execution is delegated to OpenSpec's native `--schema` mechanism — spec-cli handles scaffolding only.
+
+The installed `/opsx:super` skill is intentionally thin. It reads `openspec status --change "<name>" --json`, fetches the next artifact or action instructions with `openspec instructions ... --json`, invokes the required Superpowers skill, writes artifacts to OpenSpec's `outputPath`, and re-checks status before advancing.
+
+When a change is ready to archive, run `openspec archive <change-name> -y` from the same branch or worktree that contains the latest checked `tasks.md`, `verify.md`, `retrospective.md`, and implementation commits. Archiving from a stale checkout can sync older task state into the spec.
 
 ## Development
 
@@ -222,6 +226,7 @@ make vet        # Run go vet
 make lint       # Run golangci-lint
 make fmt        # Format source files
 make fmt-check  # Check formatting (CI)
+make release    # Build npm distribution archives and checksums
 go install .    # Install to ~/go/bin
 make clean      # Remove binary
 ```

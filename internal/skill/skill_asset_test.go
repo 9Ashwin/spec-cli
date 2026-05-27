@@ -16,19 +16,28 @@ func TestOpsxSuperSkillHasFrontDoorGuardrails(t *testing.T) {
 	content := string(data)
 	required := []string{
 		"description: \"Use when",
+		"<EXTREMELY-IMPORTANT>",
+		"If the request enters `superpowers-bridge`, do not stop after creating or selecting a change.",
 		"Instruction Priority",
+		"User instructions always take precedence",
 		"STOP",
 		"openspec list --json",
 		"openspec new change",
 		"Continuous Execution",
 		"Do not stop after creating or selecting a change",
 		"openspec status --change \"<name>\" --json",
+		"openspec instructions <artifact-id> --change \"<name>\" --json",
+		"openspec instructions apply --change \"<name>\" --json",
 		"next incomplete schema step",
+		"Do not delegate Continuous Execution to `openspec-continue-change`",
+		"apply action",
+		"Invoke the relevant Superpowers skill before acting on that schema step.",
 		"After creation, enter Continuous Execution",
 		"Do not silently",
 		"Do not write to `docs/superpowers/specs/`",
 		"Do not write to `docs/superpowers/plans/`",
 		"Red Flags",
+		"These thoughts mean STOP",
 	}
 	for _, want := range required {
 		if !strings.Contains(content, want) {
@@ -46,18 +55,27 @@ func TestOpsxSuperChineseSkillHasSameGuardrails(t *testing.T) {
 	content := string(data)
 	required := []string{
 		"指令优先级",
+		"<EXTREMELY-IMPORTANT>",
+		"如果请求进入 `superpowers-bridge`，不要在创建或选择 change 后停下。",
+		"用户指令始终优先",
 		"停止",
 		"openspec list --json",
 		"openspec new change",
 		"连续执行",
 		"不要在创建或选择 change 后停下",
 		"openspec status --change \"<name>\" --json",
+		"openspec instructions <artifact-id> --change \"<name>\" --json",
+		"openspec instructions apply --change \"<name>\" --json",
 		"下一个未完成的 schema step",
+		"不要把连续执行委托给 `openspec-continue-change`",
+		"apply action",
+		"先调用相关 Superpowers skill，再执行该 schema step。",
 		"创建后进入连续执行",
 		"不要静默",
 		"不要写入 `docs/superpowers/specs/`",
 		"不要写入 `docs/superpowers/plans/`",
 		"危险信号",
+		"这些想法表示你正在自我合理化",
 	}
 	for _, want := range required {
 		if !strings.Contains(content, want) {

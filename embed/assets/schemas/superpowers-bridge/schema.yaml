@@ -543,8 +543,17 @@ apply:
 
     5. **Archive (sync spec delta + move folder)**:
 
-       After retrospective.md is written, run `openspec archive -y`
-       (or invoke `/opsx:archive`). This:
+       Run archive from the same branch/worktree that contains the latest checked tasks.md, verify.md, retrospective.md, and implementation commits.
+       Do NOT run archive from a stale main checkout; that can archive
+       an older tasks.md with unchecked tasks and then force a merge
+       conflict when verify.md / retrospective.md are merged later.
+
+       After retrospective.md is written, run:
+
+         openspec archive <change-name> -y
+
+       (or invoke `/opsx:archive <change-name>` from that same current
+       branch/worktree). This:
        - syncs delta specs from `openspec/changes/<name>/specs/`
          into `openspec/specs/<capability>/spec.md`
        - moves the change folder to

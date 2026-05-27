@@ -1,6 +1,11 @@
 package schema
 
-import "testing"
+import (
+	"strings"
+	"testing"
+
+	specfs "github.com/9Ashwin/spec-cli/embed"
+)
 
 func TestListSchemas(t *testing.T) {
 	schemas, err := ListSchemas()
@@ -52,5 +57,29 @@ func TestRelEmbedPath(t *testing.T) {
 		if got != tt.want {
 			t.Errorf("relEmbedPath(%q, %q) = %q, want %q", tt.base, tt.target, got, tt.want)
 		}
+	}
+}
+
+func TestSuperpowersBridgeArchiveInstructionsUseCurrentWorktree(t *testing.T) {
+	data, err := specfs.SchemasFS.ReadFile("assets/schemas/superpowers-bridge/schema.yaml")
+	if err != nil {
+		t.Fatalf("read superpowers-bridge schema: %v", err)
+	}
+
+	content := string(data)
+	required := []string{
+		"Run archive from the same branch/worktree that contains the latest checked tasks.md, verify.md, retrospective.md, and implementation commits.",
+		"Do NOT run archive from a stale main checkout",
+		"openspec archive <change-name> -y",
+	}
+	for _, want := range required {
+		if !strings.Contains(content, want) {
+			t.Fatalf("superpowers-bridge schema missing archive guardrail %q", want)
+		}
+	}
+
+	forbidden := "openspec archive -y"
+	if strings.Contains(content, forbidden) {
+		t.Fatalf("superpowers-bridge schema still contains ambiguous archive command %q", forbidden)
 	}
 }

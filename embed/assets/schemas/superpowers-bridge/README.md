@@ -247,7 +247,7 @@ flowchart TD
         A2["<b>2. Executor</b><br/><i>subagent-driven-development</i><br/>↳ TDD + code-review (transitive)"]
         A3["<b>3. Verification</b><br/><i>openspec-verify-change</i> → verify.md"]
         A4["<b>4. Retrospective</b> → retrospective.md<br/>(BEFORE PR; hot context)"]
-        A5["<b>5. Archive</b><br/><i>openspec archive -y</i><br/>(sync delta + move folder)"]
+        A5["<b>5. Archive</b><br/><i>openspec archive <change-name> -y</i><br/>(sync delta + move folder)"]
         A6["<b>6. Completion</b><br/><i>finishing-a-development-branch</i><br/>🏁 PR is LAST"]
 
         A0 --> A1 --> A2 --> A3
@@ -284,7 +284,7 @@ APPLY ━━━━━━━━━━━━━━━━━━━━━━━━�
                               │           │ blocking → fix
                               ▼           │
   4. retrospective.md (BEFORE PR; hot context)
-  5. openspec archive -y (sync delta + move folder)
+  5. openspec archive <change-name> -y (sync delta + move folder)
   6. superpowers:finishing-a-development-branch (🏁 PR is LAST)
 ```
 
@@ -343,7 +343,7 @@ Implemented purely via context injection at invocation time, not by modifying sk
 /opsx:apply            # → implementation + worktree + subagent-driven-development
 /opsx:verify           # → verify.md (post-apply, runs the 7 checks)
 /opsx:continue         # → retrospective.md (post-verify, evidence-first §0 + 6 sections)
-/opsx:archive
+/opsx:archive <change-name>
 ```
 
 ### Switching back to spec-driven
@@ -401,9 +401,9 @@ Evidence-first reflection: §0 Evidence (quantitative front-matter — commit co
 
 Written **before** opening the PR so retro lands in the same PR diff.
 
-#### 5. Archive — `openspec archive -y` (or `/opsx:archive`)
+#### 5. Archive — `openspec archive <change-name> -y` (or `/opsx:archive <change-name>`)
 
-Syncs delta specs into `openspec/specs/<capability>/spec.md` and moves the change folder to `openspec/changes/archive/YYYY-MM-DD-<name>/`. Run **before** the PR opens so the diff reflects the complete archived cycle (all artifacts done, spec synced, folder under archive/).
+Run from the same branch/worktree that contains the latest checked `tasks.md`, `verify.md`, `retrospective.md`, and implementation commits. Do **not** archive from a stale main checkout. This syncs delta specs into `openspec/specs/<capability>/spec.md` and moves the change folder to `openspec/changes/archive/YYYY-MM-DD-<name>/`. Run **before** the PR opens so the diff reflects the complete archived cycle (all artifacts done, spec synced, folder under archive/).
 
 #### 6. Completion — `superpowers:finishing-a-development-branch`
 
