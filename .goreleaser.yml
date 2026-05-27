@@ -5,7 +5,7 @@ builds:
     env:
       - CGO_ENABLED=0
     ldflags:
-      - -s -w -X github.com/9Ashwin/spec-cli/internal/build.Version={{ .Version }} -X github.com/9Ashwin/spec-cli/internal/build.Date={{ .Date }}
+      - -s -w -X github.com/9Ashwin/spec-cli/internal/build.Version={{ .Version }} -X github.com/9Ashwin/spec-cli/internal/build.Date={{ .Date }} -X github.com/9Ashwin/spec-cli/internal/build.CommitHash={{ .ShortCommit }}
     goos:
       - darwin
       - linux

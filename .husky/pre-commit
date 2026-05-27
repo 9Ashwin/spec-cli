@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+
+sh "$SCRIPT_DIR/check-large-files" || exit 1
+
+echo ""
+echo "Running pre-commit checks..."
+
+sh "$SCRIPT_DIR/check-go" &
+PID_GO=$!
+
+sh "$SCRIPT_DIR/check-schema-sync" &
+PID_SCHEMA=$!
+
+sh "$SCRIPT_DIR/check-staged" &
+PID_STAGED=$!
+
+FAIL=0
+wait "$PID_GO" || FAIL=1
+wait "$PID_SCHEMA" || FAIL=1
+wait "$PID_STAGED" || FAIL=1
+
+[ "$FAIL" -eq 0 ] || exit 1

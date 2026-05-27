@@ -1,0 +1,5 @@
+#!/usr/bin/env sh
+set -e
+
+echo "Checking embedded schema sync..."
+make check-schema-sync

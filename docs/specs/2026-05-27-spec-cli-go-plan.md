@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use `superpowers:subagent-driven-development` (recommended) or `superpowers:executing-plans` to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Clean-room Go rewrite of Comet CLI as `spec-cli` — install OpenSpec, Superpowers, and schema bundles into AI coding platform projects.
+**Goal:** Clean-room Go rewrite of spec-cli as `spec-cli` — install OpenSpec, Superpowers, and schema bundles into AI coding platform projects.
 
 **Architecture:** Single binary via cobra commands. Assets embedded via `//go:embed`. All filesystem ops through `vfs.FS` interface (testable). Interactive prompts via charmbracelet/huh. Follows [lark-cli](https://github.com/larksuite/cli) patterns exactly.
 
@@ -202,7 +202,7 @@ git commit -m "feat: add internal/build and internal/vfs packages"
 - `internal/platform/platform.go` — 29 platform definitions + helpers
 - `internal/platform/detect.go` — platform detection + hasSkills
 
-Source of truth: Comet's `src/core/platforms.ts` and `src/core/detect.ts`.
+Source of truth: the reference installer's `src/core/platforms.ts` and `src/core/detect.ts`.
 
 - [ ] **Step 1: Create directory**
 
@@ -212,12 +212,12 @@ mkdir -p internal/platform
 
 - [ ] **Step 2: Write internal/platform/platform.go**
 
-Platform IDs and openspecToolIds must match Comet's `PLATFORMS` array exactly:
+Platform IDs and openspecToolIds must match the reference installer's `PLATFORMS` array exactly:
 
 ```go
 package platform
 
-// Platform represents an AI coding platform, matching Comet's Platform interface.
+// Platform represents an AI coding platform, matching the reference installer's Platform interface.
 type Platform struct {
 	ID              string   // "claude", "cursor", "roocode", ...
 	Name            string   // "Claude Code", "Cursor", "RooCode", ...
@@ -228,7 +228,7 @@ type Platform struct {
 }
 
 // AllPlatforms lists all 29 supported platforms.
-// Source: Comet src/core/platforms.ts PLATFORMS array.
+// Source: reference installer/platforms.ts PLATFORMS array.
 var AllPlatforms = []Platform{
 	{ID: "claude", Name: "Claude Code", SkillsDir: ".claude", OpenSpecToolID: "claude"},
 	{ID: "cursor", Name: "Cursor", SkillsDir: ".cursor", OpenSpecToolID: "cursor"},
@@ -284,7 +284,7 @@ func ByID(id string) *Platform {
 
 - [ ] **Step 3: Write internal/platform/detect.go**
 
-Matches Comet's `detect.ts` logic:
+Matches the reference installer's `detect.ts` logic:
 
 ```go
 package platform
@@ -539,7 +539,7 @@ const (
 	LangZH = "zh"
 )
 
-// CopySkills copies the Comet entry skill from embed to the target platform's
+// CopySkills copies the opsx:super entry skill from embed to the target platform's
 // skills directory. Returns (copied, skipped, error).
 func CopySkills(baseDir, skillsDir, language string, overwrite bool) (int, int, error) {
 	efs := specfs.SkillsFS
@@ -782,7 +782,7 @@ var rootCmd = &cobra.Command{
 spec-cli detects AI coding platforms and installs:
   - OpenSpec skills (spec lifecycle management)
   - Superpowers skills (brainstorming, TDD, code review)
-  - Comet entry skill (thin workflow guide)
+  - opsx:super entry skill (thin workflow guide)
   - Schema bundles (workflow definitions for openspec/schemas/)
 
 Commands:
@@ -829,7 +829,7 @@ git add cmd/root.go go.mod go.sum && git commit -m "feat: add cmd/root.go with c
 **Files:**
 - `cmd/init.go`
 
-This is the largest task. The `init` command implements the full 9-step interactive flow matching Comet's init logic.
+This is the largest task. The `init` command implements the full 9-step interactive flow matching the reference installer's init logic.
 
 - [ ] **Step 1: Get huh + lipgloss dependencies**
 
@@ -871,7 +871,7 @@ var initOpts initOptions
 var initCmd = &cobra.Command{
 	Use:   "init [path]",
 	Short: "Initialize workflow scaffolding",
-	Long: `Initialize OpenSpec, Superpowers, Comet entry skill, and schema bundles.
+	Long: `Initialize OpenSpec, Superpowers, opsx:super entry skill, and schema bundles.
 
 Detects AI coding platforms and interactively installs all components.
 Use --yes for non-interactive mode.`,
@@ -894,7 +894,7 @@ type initResult struct {
 	SelectedPlatforms []string       `json:"selectedPlatforms"`
 	OpenSpec          string         `json:"openspec"`
 	Superpowers       string         `json:"superpowers"`
-	Comet             map[string]int `json:"comet"`
+	OpsxSuper         map[string]int `json:"opsxSuper"`
 	SchemasInstalled  int            `json:"schemasInstalled"`
 	WorkingDirs       bool           `json:"workingDirsCreated"`
 }
@@ -991,8 +991,8 @@ func runInit(cmd *cobra.Command, args []string) error {
 		log("  Superpowers: not detected. Install with: claude plugin install superpowers@claude-plugins-official\n")
 	}
 
-	// Step 8: Install Comet skill
-	cometResults := make(map[string]int)
+	// Step 8: Install opsx:super skill
+	opsxResults := make(map[string]int)
 	for _, p := range selected {
 		skillsDir := p.SkillsDir
 		if scope == "global" && p.GlobalSkillsDir != "" {
@@ -1000,10 +1000,10 @@ func runInit(cmd *cobra.Command, args []string) error {
 		}
 		copied, _, err := skill.CopySkills(baseDir, skillsDir, language, initOpts.overwrite)
 		if err != nil {
-			log("  Comet -> %s: error — %v\n", p.Name, err)
+			log("  opsx:super -> %s: error — %v\n", p.Name, err)
 		} else {
-			log("  Comet -> %s: %d copied\n", p.Name, copied)
-			cometResults[p.ID] = copied
+			log("  opsx:super -> %s: %d copied\n", p.Name, copied)
+			opsxResults[p.ID] = copied
 		}
 	}
 
@@ -1056,7 +1056,8 @@ func runInit(cmd *cobra.Command, args []string) error {
 	// Summary
 	if !initOpts.jsonOutput {
 		log("\n  Get started:\n")
-		log("    openspec new --schema superpowers-bridge \"your idea\"\n\n")
+		log("    /opsx:super \"your idea\"\n")
+		log("    openspec new change \"your-idea\" --schema superpowers-bridge --description \"your idea\"\n\n")
 	}
 
 	if initOpts.jsonOutput {
@@ -1071,7 +1072,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 			SelectedPlatforms: platformIDs,
 			OpenSpec:          openSpecStatus,
 			Superpowers:       superpowersStatus,
-			Comet:             cometResults,
+			OpsxSuper:         opsxResults,
 			SchemasInstalled:  schemasInstalled,
 			WorkingDirs:       workingDirs,
 		})
@@ -1098,7 +1099,7 @@ func selectScope() string {
 func selectLanguage() string {
 	var lang string
 	huh.NewSelect[string]().
-		Title("Language for Comet skills:").
+		Title("Language for opsx:super skills:").
 		Options(
 			huh.NewOption("English", "en"),
 			huh.NewOption("中文", "zh"),
@@ -1173,7 +1174,7 @@ var superpowersSkillNames = []string{
 }
 
 // checkSuperpowers checks if Superpowers is installed via Claude Code plugins.
-// Mirrors Comet's hasPluginSuperpowers() in detect.ts.
+// Mirrors the reference installer's hasPluginSuperpowers() in detect.ts.
 func checkSuperpowers() bool {
 	home, err := vfs.UserHomeDir()
 	if err != nil {
@@ -1426,10 +1427,10 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 	type updateResult struct {
 		SkillsUpdated  int            `json:"skillsUpdated"`
 		SchemasUpdated int            `json:"schemasUpdated"`
-		Comet          map[string]int `json:"comet"`
+		OpsxSuper         map[string]int `json:"opsxSuper"`
 	}
 
-	result := updateResult{Comet: make(map[string]int)}
+	result := updateResult{OpsxSuper: make(map[string]int)}
 
 	// Update skills (overwrite mode)
 	detected := platform.DetectPlatforms(projectPath)
@@ -1443,7 +1444,7 @@ func runUpdate(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			log("  %s: error — %v\n", p.Name, err)
 		} else {
-			result.Comet[p.ID] = copied
+			result.OpsxSuper[p.ID] = copied
 			result.SkillsUpdated += copied
 			log("  %s: %d updated\n", p.Name, copied)
 		}
@@ -1604,16 +1605,16 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 		})
 	}
 	for _, p := range detected {
-		skillPath := filepath.Join(projectPath, p.SkillsDir, "skills", "comet", "SKILL.md")
+		skillPath := filepath.Join(projectPath, p.SkillsDir, "skills", "opsx", "SKILL.md")
 		if _, err := vfs.Stat(skillPath); err != nil {
 			checks = append(checks, doctorCheck{
 				Name: fmt.Sprintf("Skills: %s", p.Name), Status: "warning",
-				Detail: fmt.Sprintf("%s/skills/comet/SKILL.md not found", p.SkillsDir),
+				Detail: fmt.Sprintf("%s/skills/opsx-super/SKILL.md not found", p.SkillsDir),
 			})
 		} else {
 			checks = append(checks, doctorCheck{
 				Name: fmt.Sprintf("Skills: %s", p.Name), Status: "ok",
-				Detail: fmt.Sprintf("%s/skills/comet/SKILL.md present", p.SkillsDir),
+				Detail: fmt.Sprintf("%s/skills/opsx-super/SKILL.md present", p.SkillsDir),
 			})
 		}
 	}

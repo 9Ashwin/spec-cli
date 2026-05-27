@@ -1,6 +1,6 @@
 package platform
 
-// Platform represents an AI coding platform, matching Comet's Platform interface.
+// Platform represents an AI coding platform supported by OpenSpec.
 type Platform struct {
 	ID              string   // "claude", "cursor", "roocode", ...
 	Name            string   // "Claude Code", "Cursor", "RooCode", ...
@@ -11,7 +11,7 @@ type Platform struct {
 }
 
 // AllPlatforms lists all 29 supported platforms.
-// Source: Comet src/core/platforms.ts PLATFORMS array.
+// Keep these IDs aligned with OpenSpec's tool registry.
 var AllPlatforms = []Platform{
 	{ID: "claude", Name: "Claude Code", SkillsDir: ".claude", OpenSpecToolID: "claude"},
 	{ID: "cursor", Name: "Cursor", SkillsDir: ".cursor", OpenSpecToolID: "cursor"},

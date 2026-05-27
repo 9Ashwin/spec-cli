@@ -1,7 +1,10 @@
 package schema
 
 import (
+	"errors"
+	"fmt"
 	"io/fs"
+	"path"
 	"path/filepath"
 	"strings"
 
@@ -31,7 +34,7 @@ func ListSchemas() ([]Info, error) {
 		name := entry.Name()
 		version := "unknown"
 
-		versionPath := filepath.Join("assets/schemas", name, "VERSION")
+		versionPath := path.Join("assets/schemas", name, "VERSION")
 		if data, err := specfs.SchemasFS.ReadFile(versionPath); err == nil {
 			version = strings.TrimSpace(string(data))
 		}
@@ -45,28 +48,29 @@ func ListSchemas() ([]Info, error) {
 // InstallSchema copies a schema bundle from embed to openspec/schemas/<name>/.
 // Removes any existing installation first.
 func InstallSchema(name, projectPath string) error {
-	sourceDir := filepath.Join("assets/schemas", name)
+	sourceDir := path.Join("assets/schemas", name)
 	targetDir := filepath.Join(projectPath, "openspec", "schemas", name)
 
 	_ = vfs.RemoveAll(targetDir)
 
-	return fs.WalkDir(specfs.SchemasFS, sourceDir, func(path string, d fs.DirEntry, err error) error {
+	return fs.WalkDir(specfs.SchemasFS, sourceDir, func(embedPath string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		relPath, err := filepath.Rel(sourceDir, path)
+		// embed paths use forward slashes; use path.Rel for embed, filepath.Join for OS dest.
+		relPath, err := relEmbedPath(sourceDir, embedPath)
 		if err != nil {
 			return err
 		}
 
-		dest := filepath.Join(targetDir, relPath)
+		dest := filepath.Join(targetDir, filepath.FromSlash(relPath))
 
 		if d.IsDir() {
 			return vfs.MkdirAll(dest, 0o755)
 		}
 
-		data, err := specfs.SchemasFS.ReadFile(path)
+		data, err := specfs.SchemasFS.ReadFile(embedPath)
 		if err != nil {
 			return err
 		}
@@ -102,7 +106,10 @@ func AppendClaudeMdFragment(name, projectPath, locale string) (bool, error) {
 
 	data, err := vfs.ReadFile(claudeMdPath)
 	if err != nil {
-		return false, nil // no CLAUDE.md, skip
+		if errors.Is(err, fs.ErrNotExist) {
+			return false, nil // no CLAUDE.md, skip
+		}
+		return false, fmt.Errorf("read CLAUDE.md: %w", err)
 	}
 
 	content := string(data)
@@ -117,12 +124,27 @@ func AppendClaudeMdFragment(name, projectPath, locale string) (bool, error) {
 		fragmentName = "CLAUDE.md.fragment.md"
 	}
 
-	fragmentPath := filepath.Join("assets/schemas", name, "templates", "adopters", fragmentName)
+	fragmentPath := path.Join("assets/schemas", name, "templates", "adopters", fragmentName)
 	fragment, err := specfs.SchemasFS.ReadFile(fragmentPath)
 	if err != nil {
-		return false, nil // fragment not found, skip silently
+		if errors.Is(err, fs.ErrNotExist) {
+			return false, nil // fragment not found, skip silently
+		}
+		return false, fmt.Errorf("read schema adopter fragment: %w", err)
 	}
 
 	newContent := content + "\n" + string(fragment)
 	return true, vfs.WriteFile(claudeMdPath, []byte(newContent), 0o644)
+}
+
+// relEmbedPath computes a relative path between two embed (forward-slash) paths.
+func relEmbedPath(base, target string) (string, error) {
+	if !strings.HasPrefix(target, base) {
+		return "", fmt.Errorf("target %q is not under base %q", target, base)
+	}
+	rel := strings.TrimPrefix(target[len(base):], "/")
+	if rel == "" {
+		rel = "."
+	}
+	return rel, nil
 }

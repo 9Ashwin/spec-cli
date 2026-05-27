@@ -1,174 +1,145 @@
 # AGENTS.md
 
-## Project Overview
+## Goal
 
-spec-cli is a Go CLI tool that scaffolds OpenSpec + Superpowers development workflows into AI coding platform projects. A clean-room rewrite of [Comet](https://github.com/rpamis/comet), it detects installed AI coding platforms and installs OpenSpec skills, Superpowers skills, a thin `/comet` entry skill, and schema bundles into `openspec/schemas/`. Workflow execution is delegated to OpenSpec's native `--schema` mechanism — spec-cli does not manage phase state, guard scripts, or handoff/archive automation.
+Keep `spec-cli` a thin, predictable Go CLI that scaffolds OpenSpec + Superpowers workflows into AI coding projects.
+
+Good changes usually fit one of these goals:
+
+- Improve setup UX: clearer prompts, safer defaults, better help text, and actionable errors.
+- Improve agent reliability: stable `--json` output, deterministic non-interactive flows, and stderr/stdout separation.
+- Improve installation correctness: platform detection, skill copy, schema install, and update/doctor behavior.
+- Improve maintainability: small command wrappers, testable internal packages, VFS-backed filesystem access, and embedded assets that stay in sync.
+
+Do not turn `spec-cli` into a workflow runner. OpenSpec owns lifecycle execution through `openspec ... --schema superpowers-bridge`; this project only installs and refreshes the scaffolding that makes that flow available.
+
+## Build & Test
+
+```bash
+make build              # Build spec-cli with Version/Date/CommitHash ldflags
+make unit-test          # Run go test -race -count=1 ./...
+make test               # Required before PR: fmt-check + vet + unit-test
+make lint               # golangci-lint, including forbidigo VFS rules
+make check-schema-sync  # Verify embedded schema assets stay synchronized
+```
+
+If dependencies change, run `go mod tidy` and confirm `go.mod` / `go.sum` only contain intentional changes.
+
+## Pre-PR Checks
+
+1. `make test`
+2. `make lint`
+3. `make check-schema-sync`
+4. `go mod tidy` and inspect any module file diff
+5. For release or npm installer changes: `make release` and verify generated archive/checksum names
+
+## Who Uses This CLI
+
+The primary users are humans working with AI coding tools, and AI agents automating setup inside user projects. Treat command output as part of the product API:
+
+- stdout is data. JSON envelopes and machine-readable results go there.
+- stderr is for progress, prompts, warnings, hints, and diagnostics.
+- `--json` must suppress decorative/progress text and return structured output.
+- Error messages should be specific enough for an agent to choose a next action.
+- Non-interactive mode (`--yes`) must avoid prompts and pick deterministic defaults.
 
 ## Architecture Overview
 
-Single binary (`spec-cli`) built with cobra. Assets (skills, schema bundles) are embedded via `//go:embed` at compile time. All filesystem operations go through a `vfs.FS` interface. Interactive prompts use charmbracelet/huh.
+`spec-cli` is a single Cobra binary. Assets are embedded at compile time, business logic lives in `internal/`, and all internal filesystem access goes through `internal/vfs`.
 
-| Layer | Tech | Description |
-|-------|------|-------------|
-| **cmd/** | cobra | CLI commands — thin wrappers that parse flags and call internal packages |
-| **internal/** | Go stdlib + exec | Business logic: platform detection, skill copy, schema install, openspec integration |
-| **embed/** | go:embed + Markdown + YAML | Embedded assets: skill files (en/zh), schema bundles, templates, adopters |
+| Layer | Tech | Responsibility |
+|-------|------|----------------|
+| `cmd/` | Cobra + huh | Parse flags, prompt users, print results, call internal packages |
+| `internal/platform/` | Go stdlib | Detect AI coding platforms and map them to OpenSpec tool IDs |
+| `internal/skill/` | embed.FS + VFS | Copy the thin `opsx:super` skill into platform skill directories |
+| `internal/schema/` | embed.FS + VFS | Install schema bundles into `openspec/schemas/` and append adopters |
+| `internal/openspec/` | Runner interface | Wrap `openspec` CLI calls behind testable command execution |
+| `embed/` | go:embed | Own all embedded skills, schema bundles, templates, and adopters |
 
-## Tech Stack
+## Source Layout
 
-- **Language**: Go 1.23
-- **CLI Framework**: [cobra](https://github.com/spf13/cobra)
-- **Interactive Prompts**: [charmbracelet/huh](https://github.com/charmbracelet/huh) + [lipgloss](https://github.com/charmbracelet/lipgloss)
-- **Asset Embedding**: go:embed
-- **Build**: Makefile with ldflags version injection
-- **Testing**: go test -race
+| Path | What it does |
+|------|--------------|
+| `main.go` | Calls `os.Exit(cmd.Execute())` |
+| `cmd/root.go` | Root Cobra command, version template, subcommand registration |
+| `cmd/helpers.go` | Shared path resolution, JSON printing, conditional printer, constants |
+| `cmd/init.go` | Interactive/non-interactive 10-step scaffolding flow |
+| `cmd/status.go` | `openspec list --json` wrapper for active changes |
+| `cmd/update.go` | Refresh embedded skills and schema bundles |
+| `cmd/doctor.go` | Diagnose OpenSpec CLI, schemas, and installed skill files |
+| `cmd/completion.go` | Shell completion for bash/zsh/fish/powershell |
+| `internal/vfs/` | Filesystem interface, OS implementation, and package-level helpers |
+| `internal/platform/` | Platform registry and project detection |
+| `internal/openspec/` | `Runner`, `ExecRunner`, install/list/version helpers |
+| `internal/schema/` | Schema list/install/version/adopter fragment helpers |
+| `internal/skill/` | Embedded skill copy logic |
+| `internal/build/` | Build-time version/date/commit metadata |
+| `embed/assets/skills*/` | English and Simplified Chinese `opsx:super` skill assets |
+| `embed/assets/schemas/` | Embedded OpenSpec schema bundles |
+| `scripts/install.js` | npm postinstall binary downloader with mirror fallback |
+| `scripts/run.js` | npm launcher for the downloaded binary |
+
+## Init Flow
+
+`spec-cli init` runs this flow:
+
+1. Detect installed AI coding platforms with `platform.DetectPlatforms(projectPath)`.
+2. Select scope: `project` or `global`.
+3. Select skill language: `en` or `zh`.
+4. Select target platforms; `--yes` uses detected platforms, or all platforms if none are detected.
+5. Resolve the base directory for project/global skill installation.
+6. Ensure the OpenSpec CLI is available, then run `openspec init <path> --tools <ids>` through `internal/openspec`.
+7. Detect Superpowers in the Claude plugin cache.
+8. Copy the embedded `opsx:super` skill into each selected platform.
+9. Create `docs/superpowers/specs/` and `docs/superpowers/plans/` for project scope.
+10. Install embedded schema bundles and append locale-specific `CLAUDE.md` adopter fragments.
+
+## Code Rules
+
+### VFS
+
+- Internal packages must use `internal/vfs` helpers or accept a `vfs.FS`.
+- Do not call `os.ReadFile`, `os.WriteFile`, `os.MkdirAll`, `os.Stat`, `os.Remove`, or `os.RemoveAll` directly in `internal/`.
+- Tests can replace `vfs.DefaultFS`; package helpers such as `vfs.ReadFile()` delegate to it.
+
+### Embedded Assets
+
+- `//go:embed` directives live in the root `embed/` package.
+- Embedded paths use forward slashes and `path.Join`; OS destination paths use `filepath.Join`.
+- Embedded files must live under `embed/assets/`.
+- When schema source assets change, keep generated/synchronized schema files aligned and run `make check-schema-sync`.
+
+### Platform Registry
+
+- Platform definitions live in `internal/platform/platform.go`.
+- Keep `ID`, `Name`, `SkillsDir`, optional `GlobalSkillsDir`, `DetectionPaths`, and `OpenSpecToolID` aligned with OpenSpec's tool registry.
+- `DetectionPaths` takes precedence; if absent, detection falls back to `SkillsDir`.
+- Adding a platform requires tests for registry validity and detection behavior.
+
+### Commands
+
+- Keep Cobra commands thin: parse flags, resolve paths, call internal packages, print results.
+- Commands return errors from `RunE`; `cmd.Execute()` prints `Error: <msg>` and returns exit code `1`.
+- Add `--json` to agent-facing commands and keep the schema stable.
+- Shared literals such as scope/language values belong in `cmd/helpers.go`.
+
+### OpenSpec Runner
+
+- External `openspec` calls go through `internal/openspec.Runner`.
+- Production uses `ExecRunner`; tests should replace `DefaultRunner`.
+- Non-critical list/status failures may return empty results when that keeps diagnostics useful.
+
+## Release & Distribution
+
+- Go module: `github.com/9Ashwin/spec-cli`
+- npm package: `ashwin-spec`
+- Binary name: `spec-cli`
+- Release artifacts are built by `make release` / GoReleaser for darwin, linux, and windows.
+- `scripts/install.js` downloads the matching archive and verifies checksums; keep installer changes conservative and cross-platform.
 
 ## Reference Projects
 
-| Project | Path | Purpose |
-|---------|------|---------|
-| lark-cli | `/Users/solariswu/workspaces/github/cli` | Go patterns: cobra root, vfs interface, build ldflags, embed |
-| comet | `/Users/solariswu/workspaces/github/comet` | Original TypeScript codebase: 29 platforms, init flow, openspec/superpowers install logic |
-| openspec-schemas | `/Users/solariswu/workspaces/github/openspec-schemas` | Schema.yaml format: artifact-driven schema + templates + adopters convention |
-
-## Project Structure
-
-```
-spec-cli/
-├── main.go                             # os.Exit(cmd.Execute())
-├── cmd/                                # cobra commands (thin — parse args, call internal)
-│   ├── root.go                         #   Root command: version, help, Execute()
-│   ├── init.go                         #   spec-cli init: interactive scaffolding (9-step flow)
-│   ├── status.go                       #   spec-cli status: openspec list --json wrapper
-│   ├── update.go                       #   spec-cli update: refresh skills + schemas
-│   └── doctor.go                       #   spec-cli doctor: diagnose install health
-├── internal/                           # Go business logic
-│   ├── build/                          #   Version/Date ldflags injection (from lark-cli)
-│   │   └── build.go                    #     var Version = "DEV"; overridden via -ldflags
-│   ├── vfs/                            #   Filesystem abstraction (from lark-cli)
-│   │   ├── fs.go                       #     FS interface
-│   │   ├── osfs.go                     #     OsFs struct (delegates to os package)
-│   │   └── default.go                  #     DefaultFS + package-level convenience functions
-│   ├── platform/                       #   29 AI coding platform definitions
-│   │   ├── platform.go                 #     Platform struct + AllPlatforms slice
-│   │   └── detect.go                   #     DetectPlatforms() via DetectionPaths/SkillsDir
-│   ├── skill/                          #   Skill file management
-│   │   └── skill.go                    #     CopySkills() from embed to target dirs
-│   ├── openspec/                       #   OpenSpec CLI integration
-│   │   └── openspec.go                 #     InitOpenSpec(), ListChanges(), Version()
-│   └── schema/                         #   Schema bundle management
-│       └── schema.go                   #     ListSchemas(), InstallSchema(), AppendClaudeMdFragment()
-├── embed/                              # Go embed targets + embedded assets
-│   ├── skills.go                       #   //go:embed all:assets/skills + all:assets/skills-zh
-│   ├── schemas.go                      #   //go:embed all:assets/schemas
-│   └── assets/                         #   Embedded content (must be in same dir as embed .go files)
-│       ├── skills/comet/SKILL.md       #     English comet entry skill
-│       ├── skills-zh/comet/SKILL.md    #     简体中文 comet entry skill
-│       └── schemas/superpowers-bridge/ #     Schema bundle
-│           ├── schema.yaml             #       Artifact definitions + apply flow
-│           ├── VERSION                 #       Schema version
-│           ├── templates/              #       Artifact templates (proposal, design, tasks, etc.)
-│           └── templates/adopters/     #       CLAUDE.md fragments (en + zh)
-├── docs/                               # Project documentation
-│   ├── specs/                          #   Design specs and implementation plans
-│   │   ├── 2026-05-27-spec-cli-go-design.md
-│   │   └── 2026-05-27-spec-cli-go-plan.md
-│   └── spec-cli-handoff.md             #   Session handoff document
-├── Makefile                            # build, test, vet, fmt targets
-├── go.mod                              # github.com/9Ashwin/spec-cli
-└── go.sum
-```
-
-## Development Guide
-
-### Prerequisites
-
-1. Go 1.23+
-2. (optional) `openspec` CLI for integration testing
-
-### Common Commands
-
-| Command | Description |
-|---------|-------------|
-| `make build` | Build binary with ldflags version injection |
-| `make test` | Run all tests with race detector |
-| `make vet` | Run go vet |
-| `make fmt` | Format all Go source files |
-| `go build ./...` | Check all packages compile |
-| `./spec-cli --help` | Verify binary works |
-| `./spec-cli --version` | Show build version |
-| `./spec-cli init` | Run interactive init (test in a temp dir) |
-| `./spec-cli init --yes` | Non-interactive init, auto-detect platforms |
-| `./spec-cli status` | Show active workflow changes |
-| `./spec-cli doctor` | Diagnose installation health |
-
-### Build Flags
-
-```bash
-make build
-# Equivalent to:
-go build -trimpath -ldflags "-s -w -X github.com/9Ashwin/spec-cli/internal/build.Version=$(git describe --tags --always --dirty) -X github.com/9Ashwin/spec-cli/internal/build.Date=$(date +%Y-%m-%d)" -o spec-cli .
-```
-
-## Key Development Rules
-
-### VFS Interface
-
-- All filesystem operations in `internal/` packages must use `vfs.DefaultFS` or accept an `vfs.FS` parameter.
-- Never call `os.ReadFile`, `os.WriteFile`, `os.MkdirAll`, `os.Stat`, `os.Remove`, `os.RemoveAll` directly in internal packages.
-- In tests, replace `vfs.DefaultFS` with an in-memory implementation.
-- Package-level convenience functions (`vfs.Stat()`, `vfs.ReadFile()`, etc.) delegate to `DefaultFS` — tests can swap the global.
-
-### Embed Pattern
-
-- `//go:embed` directives live in the `embed/` package at module root. Go does not allow `..` in embed paths, so patterns are relative to the source file directory.
-- `embed/skills.go` uses `//go:embed all:assets/skills` for recursive embedding. The `all:` prefix (Go 1.22+) includes nested directories.
-- Embedded assets must live under `embed/assets/` — the same directory tree as the Go source files.
-- Internal packages import `specfs "github.com/9Ashwin/spec-cli/embed"` and read from the exported `embed.FS` variables.
-
-### Platform Definitions
-
-- The 29-platform list in `internal/platform/platform.go` mirrors Comet's `src/core/platforms.ts`.
-- Each `Platform` struct: `ID`, `Name`, `SkillsDir` (where skills are installed), `GlobalSkillsDir` (optional, for global scope), `DetectionPaths` (paths that indicate the platform is active, nil falls back to SkillsDir), `OpenSpecToolID` (passed to `openspec init --tools`).
-- `DetectPlatforms()` checks `DetectionPaths` first; if nil, falls back to checking `SkillsDir` existence.
-- Adding a new platform: add to `AllPlatforms` slice, verify `OpenSpecToolID` matches OpenSpec's registry.
-
-### Schema Bundles
-
-- Schema bundles live under `embed/assets/schemas/<name>/` and are embedded via `embed.SchemasFS`.
-- Each bundle: `schema.yaml` (artifact definitions + apply flow), `VERSION`, `templates/` (artifact templates), `templates/adopters/` (CLAUDE.md fragments en + zh), `README.md`.
-- `schema.InstallSchema()` copies the entire bundle directory from embed to `openspec/schemas/<name>/`.
-- `schema.AppendClaudeMdFragment()` appends locale-specific fragment to `CLAUDE.md` if present and not already added.
-- Schema version comparison in `spec-cli update` reads the embedded `VERSION` against the installed one.
-
-### CLI Commands
-
-- Root command in `cmd/root.go`: `func Execute() int`, called by `main.go` via `os.Exit(cmd.Execute())`.
-- Each subcommand is a `var ...Cmd = &cobra.Command{...}` with `RunE` for error returns.
-- Flags use `cmd.Flags().BoolVar()` / `cmd.Flags().StringVar()`, registered in `init()`.
-- Subcommands registered in `root.go`'s `init()` via `rootCmd.AddCommand(...)`.
-- `--json` flag on all commands outputs structured JSON to stdout (matching Comet's TypeScript JSON format).
-- Interactive prompts use huh (`huh.NewSelect`); non-interactive mode via `--yes` flag.
-
-### Init Flow
-
-`speed-cli init` executes a 10-step flow:
-
-1. Detect platforms (auto, via `platform.DetectPlatforms()`)
-2. Select scope (project / global) — interactive or `--scope`
-3. Select language (en / zh) — interactive or defaults to en
-4. Select platforms — interactive multi-select, auto in `--yes` mode
-5. Determine base directory (project path or home)
-6. Install OpenSpec (`openspec init <path> --tools <ids>`, auto-installs CLI if missing)
-7. Detect Superpowers (check `~/.claude/plugins/cache/*/superpowers/*/skills/`)
-8. Install Comet skill (`skill.CopySkills()` from embed)
-9. Create working directories (`docs/superpowers/specs/`, `docs/superpowers/plans/`)
-10. Install schema bundles (`schema.InstallSchema()` + `AppendClaudeMdFragment()`)
-
-### Error Handling
-
-- Commands return errors via `RunE`; cobra prints to stderr.
-- `SilenceUsage: true` and `SilenceErrors: true` on root to suppress cobra's default error output.
-- `Execute()` in `cmd/root.go` catches errors and prints `Error: <msg>` to stderr, returns exit code 1.
-- Internal packages wrap errors with `fmt.Errorf("...: %w", err)` for context.
-- Non-critical failures (e.g., `openspec list --json` fails) return nil results rather than errors.
+| Project | Path | Useful patterns |
+|---------|------|-----------------|
+| lark-cli | `/Users/mervyn/workspaces/github/cli` | Agent-first CLI output, VFS conventions, Cobra structure, release/install patterns |
+| Memoh | `/Users/mervyn/workspaces/github/Memoh` | Rich AGENTS architecture docs, workspace/runtime boundaries, agent harness ideas to evaluate separately |

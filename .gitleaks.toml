@@ -1,0 +1,8 @@
+title = "spec-cli gitleaks config"
+
+[allowlist]
+  description = "Allow test fixtures and example strings"
+  paths = [
+    '''embed/assets/.*''',
+    '''\.git/.*''',
+  ]

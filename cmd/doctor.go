@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/9Ashwin/spec-cli/internal/openspec"
@@ -38,11 +36,7 @@ type doctorCheck struct {
 }
 
 func runDoctor(cmd *cobra.Command, args []string) error {
-	projectPath := "."
-	if len(args) > 0 {
-		projectPath = args[0]
-	}
-	projectPath, err := filepath.Abs(projectPath)
+	projectPath, err := resolveProjectPath(args)
 	if err != nil {
 		return err
 	}
@@ -93,7 +87,7 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Check 4: Skill files for detected platforms
+	// Check 3: Skill files for detected platforms
 	detected := platform.DetectPlatforms(projectPath)
 	if len(detected) == 0 {
 		checks = append(checks, doctorCheck{
@@ -118,12 +112,11 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 
 	// Output
 	if doctorJSON {
-		data, _ := json.MarshalIndent(checks, "", "  ")
-		fmt.Println(string(data))
+		printJSON(checks)
 		return nil
 	}
 
-	fmt.Fprintf(os.Stderr, "\n  spec-cli Doctor\n\n")
+	fmt.Fprintf(defaultIO.ErrOut, "\n  spec-cli Doctor\n\n")
 	okCount, warnCount, errCount := 0, 0, 0
 	for _, c := range checks {
 		icon := "✓"
@@ -141,9 +134,9 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 		if c.Detail != "" {
 			detail = fmt.Sprintf(" — %s", c.Detail)
 		}
-		fmt.Fprintf(os.Stderr, "  %s %s%s\n", icon, c.Name, detail)
+		fmt.Fprintf(defaultIO.ErrOut, "  %s %s%s\n", icon, c.Name, detail)
 	}
-	fmt.Fprintf(os.Stderr, "\n  %d ok, %d warnings, %d errors\n\n", okCount, warnCount, errCount)
+	fmt.Fprintf(defaultIO.ErrOut, "\n  %d ok, %d warnings, %d errors\n\n", okCount, warnCount, errCount)
 
 	if errCount > 0 {
 		return fmt.Errorf("doctor found %d error(s)", errCount)

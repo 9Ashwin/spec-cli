@@ -1,0 +1,24 @@
+#!/usr/bin/env sh
+set -e
+
+MAX_SIZE=1048576
+failed=0
+
+echo "Checking staged file sizes..."
+
+for file in $(git diff --cached --name-only --diff-filter=ACMR); do
+  [ -f "$file" ] || continue
+  size=$(stat -f%z "$file" 2>/dev/null || stat -c%s "$file" 2>/dev/null || echo 0)
+  if [ "$size" -gt "$MAX_SIZE" ]; then
+    mb=$(awk "BEGIN { printf \"%.2f\", $size / 1048576 }" 2>/dev/null || echo "$((size / 1048576))")
+    echo "  $file is too large (${mb}MB). Limit is 1MB."
+    failed=1
+  fi
+done
+
+if [ "$failed" -ne 0 ]; then
+  echo "Large files detected. Use git commit --no-verify only when intentional."
+  exit 1
+fi
+
+echo "File size check passed"

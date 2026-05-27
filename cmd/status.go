@@ -1,10 +1,7 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/9Ashwin/spec-cli/internal/openspec"
 	"github.com/spf13/cobra"
@@ -25,11 +22,7 @@ func init() {
 }
 
 func runStatus(cmd *cobra.Command, args []string) error {
-	projectPath := "."
-	if len(args) > 0 {
-		projectPath = args[0]
-	}
-	projectPath, err := filepath.Abs(projectPath)
+	projectPath, err := resolveProjectPath(args)
 	if err != nil {
 		return err
 	}
@@ -43,25 +36,24 @@ func runStatus(cmd *cobra.Command, args []string) error {
 		if changes == nil {
 			changes = []openspec.ChangeInfo{}
 		}
-		data, _ := json.MarshalIndent(changes, "", "  ")
-		fmt.Println(string(data))
+		printJSON(changes)
 		return nil
 	}
 
 	if len(changes) == 0 {
-		fmt.Println("No active changes.")
+		fmt.Fprintln(defaultIO.Out, "No active changes.")
 		return nil
 	}
 
-	fmt.Fprintf(os.Stderr, "\n  Active Changes (%d):\n\n", len(changes))
+	fmt.Fprintf(defaultIO.ErrOut, "\n  Active Changes (%d):\n\n", len(changes))
 	for _, c := range changes {
 		schemaLabel := ""
 		if c.Schema != "" {
 			schemaLabel = fmt.Sprintf(" [schema: %s]", c.Schema)
 		}
-		fmt.Fprintf(os.Stderr, "  • %s%s\n", c.Name, schemaLabel)
+		fmt.Fprintf(defaultIO.ErrOut, "  • %s%s\n", c.Name, schemaLabel)
 	}
-	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(defaultIO.ErrOut)
 
 	return nil
 }

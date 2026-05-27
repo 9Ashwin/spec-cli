@@ -6,7 +6,8 @@
     "spec-cli": "scripts/run.js"
   },
   "scripts": {
-    "postinstall": "node scripts/install.js"
+    "postinstall": "node scripts/install.js",
+    "prepare": "husky"
   },
   "os": [
     "darwin",
@@ -29,5 +30,14 @@
     "scripts/install.js",
     "scripts/run.js",
     "checksums.txt"
-  ]
+  ],
+  "devDependencies": {
+    "husky": "^9.1.0",
+    "lint-staged": "^15.4.0"
+  },
+  "lint-staged": {
+    "*.go": [
+      "gofmt -w"
+    ]
+  }
 }

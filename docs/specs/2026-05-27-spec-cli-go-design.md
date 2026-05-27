@@ -2,9 +2,9 @@
 
 ## Context
 
-spec-cli is a Go CLI tool that installs OpenSpec, Superpowers, and schema bundles into AI coding platform projects. It is a clean-room rewrite of the [Comet](https://github.com/rpamis/comet) concept, using the [lark-cli](https://github.com/larksuite/cli) project as a reference for Go patterns (cobra, charmbracelet/huh, go:embed, vfs).
+spec-cli is a Go CLI tool that installs OpenSpec, Superpowers, and schema bundles into AI coding platform projects. It combines platform detection with the `superpowers-bridge` schema, using the [lark-cli](https://github.com/larksuite/cli) project as a reference for Go patterns (cobra, charmbracelet/huh, go:embed, vfs).
 
-**What it does:** `spec-cli init` detects installed AI coding platforms, interactively installs OpenSpec skills, Superpowers skills, a thin `/comet` entry skill, and schema bundles into `openspec/schemas/`. The workflow execution itself is delegated to OpenSpec's native `--schema` mechanism.
+**What it does:** `spec-cli init` detects installed AI coding platforms, interactively installs OpenSpec skills, Superpowers skills, a thin `/opsx:super` entry skill, and schema bundles into `openspec/schemas/`. The workflow execution itself is delegated to OpenSpec's native `--schema` mechanism.
 
 **What it does NOT do:** Phase state management, guard scripts, handoff/archive automation — those are handled by OpenSpec schema instructions.
 
@@ -34,8 +34,8 @@ spec-cli/
 │   └── schema/
 │       └── schema.go                # schema bundle install from embed
 ├── assets/
-│   ├── skills/comet/SKILL.md        # embedded: English entry skill
-│   ├── skills-zh/comet/SKILL.md     # embedded: Chinese entry skill
+│   ├── skills/opsx-super/SKILL.md        # embedded: English entry skill
+│   ├── skills-zh/opsx-super/SKILL.md     # embedded: Chinese entry skill
 │   └── schemas/superpowers-bridge/  # embedded: schema bundle
 │       ├── schema.yaml
 │       ├── VERSION
@@ -130,7 +130,7 @@ func SkillsDir(p Platform, scope Scope) string
 
 Detection checks `DetectionPaths` against the filesystem. For platforms without `DetectionPaths`, falls back to checking `SkillsDirs` directory existence.
 
-Keep the 29-platform list from Comet's `src/core/platforms.ts`. Each platform added to the source list requires:
+Keep the 29-platform list from the reference installer's `src/core/platforms.ts`. Each platform added to the source list requires:
 1. Add to `AllPlatforms` in `platform.go`
 2. Map `OpenSpecToolID` to OpenSpec's tool ID
 
@@ -153,7 +153,7 @@ spec-cli init [path]
   │    --yes: auto-select detected, or all if none detected
   │
   ├─ Step 5: Existing component handling
-  │    Per platform: check openspec/superpowers/comet presence
+  │    Per platform: check openspec/superpowers/opsx:super presence
   │    Multiple existing: bulk choice (overwrite-all/skip-all/per-component)
   │    Single existing: overwrite/skip
   │    --yes: skip existing
@@ -168,7 +168,7 @@ spec-cli init [path]
   │    Check ~/.claude/plugins/cache/*/superpowers/*/skills/
   │    Warn if not found, point to plugin install docs
   │
-  ├─ Step 8: Install Comet skill
+  ├─ Step 8: Install opsx:super skill
   │    skill.CopySkills() → writes SKILL.md from embed
   │    Project scope: create docs/superpowers/specs/ and plans/
   │
@@ -203,7 +203,7 @@ spec-cli doctor [path]
 
 ## Status Command
 
-Reads `openspec list --json` output, parses active changes, displays them with schema name and artifact progress. No `.comet.yaml` parsing — state is tracked by OpenSpec natively.
+Reads `openspec list --json` output, parses active changes, displays them with schema name and artifact progress. No `.opsx.yaml` parsing — state is tracked by OpenSpec natively.
 
 ## Update Command
 
@@ -222,30 +222,27 @@ Checks:
 
 ## Entry Skill
 
-`/comet` skill (written by `skill.CopySkills`) is a thin guide:
+`/opsx:super` skill (written by `skill.CopySkills`) is a thin guide:
 
 ```markdown
 ---
-name: comet
-description: "Comet — OpenSpec + Superpowers development workflow."
+name: opsx:super
+description: "Route work into the OpenSpec + Superpowers schema workflow."
 ---
 
-# Comet — OpenSpec + Superpowers Development Workflow
+# opsx:super
 
 ## Workflow
 
-openspec new --schema superpowers-bridge <name>   # start a new change
-openspec status --change "<name>"                  # check progress
-openspec archive --change "<name>" -y              # archive when done
-
-## Active Changes
-
 openspec list --json
+openspec new change "<name>" --schema superpowers-bridge --description "<request>"
+
+Then follow the schema artifact instructions.
 ```
 
 ## What Gets Deleted
 
-All Node.js/TypeScript code from the original comet copy:
+All Node.js/TypeScript code from the legacy installer copy:
 - `src/`, `test/`, `scripts/`, `bin/`
 - `package.json`, `package-lock.json`, `pnpm-lock.yaml`
 - `tsconfig.json`, `vitest.config.ts`, `eslint.config.js`

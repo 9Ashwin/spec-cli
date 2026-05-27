@@ -2,21 +2,33 @@ BINARY  := spec-cli
 MODULE  := github.com/9Ashwin/spec-cli
 VERSION := $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
 DATE    := $(shell date +%Y-%m-%d)
-LDFLAGS := -s -w -X $(MODULE)/internal/build.Version=$(VERSION) -X $(MODULE)/internal/build.Date=$(DATE)
+COMMIT  := $(shell git rev-parse --short HEAD 2>/dev/null || echo unknown)
+LDFLAGS := -s -w -X $(MODULE)/internal/build.Version=$(VERSION) -X $(MODULE)/internal/build.Date=$(DATE) -X $(MODULE)/internal/build.CommitHash=$(COMMIT)
 PREFIX  ?= /usr/local
 
-.PHONY: all build test vet fmt fmt-check install uninstall clean release
+.PHONY: all build test unit-test vet fmt fmt-check lint check-schema-sync sync-schemas install uninstall clean release
 
-all: build vet
+all: test
 
 build:
 	go build -trimpath -ldflags "$(LDFLAGS)" -o $(BINARY) .
 
-test:
+test: fmt-check vet unit-test
+
+unit-test:
 	go test -race -count=1 ./...
 
 vet:
 	go vet ./...
+
+lint:
+	golangci-lint run ./...
+
+check-schema-sync:
+	bash scripts/check-schema-sync.sh
+
+sync-schemas:
+	bash scripts/sync-schemas.sh
 
 fmt:
 	gofmt -s -w .

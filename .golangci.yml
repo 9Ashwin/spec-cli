@@ -1,0 +1,73 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: none
+  enable:
+    - asasalint       # checks for pass []any as any in variadic func(...any)
+    - asciicheck      # checks that code does not contain non-ASCII identifiers
+    - bodyclose       # checks whether HTTP response body is closed successfully
+    - copyloopvar     # detects places where loop variables are copied
+    - durationcheck   # checks for two durations multiplied together
+    - exptostd        # detects functions from golang.org/x/exp/ replaceable by std
+    - fatcontext      # detects nested contexts in loops
+    - gocritic        # diagnostics for bugs, performance and style
+    - goprintffuncname # checks that printf-like functions end with f
+    - govet           # reports suspicious constructs
+    - ineffassign     # detects ineffective assignments
+    - nilerr          # finds code that returns nil even if error is not nil
+    - nolintlint      # reports ill-formed nolint directives
+    - unconvert       # removes unnecessary type conversions
+    - unused          # checks for unused constants, variables, functions and types
+    - forbidigo       # forbids specific function calls
+
+  exclusions:
+    paths:
+      - generated
+    rules:
+      - path: _test\.go$
+        linters:
+          - gocritic
+          - forbidigo
+      - path: cmd/
+        linters:
+          - forbidigo
+      - path: internal/vfs/osfs\.go$
+        linters:
+          - forbidigo
+
+  settings:
+    forbidigo:
+      forbid:
+        # ── os: all FS ops must go through internal/vfs ──
+        - pattern: os\.(Stat|Lstat|Open|OpenFile|ReadFile|WriteFile|ReadDir|UserHomeDir)\b
+          msg: "use the corresponding vfs.Xxx() from internal/vfs"
+        - pattern: os\.(Create|CreateTemp|MkdirTemp)\b
+          msg: "use vfs helpers from internal/vfs"
+        - pattern: os\.Mkdir(All)?\b
+          msg: "use vfs.MkdirAll() from internal/vfs"
+        - pattern: os\.Remove(All)?\b
+          msg: "use vfs.Remove() or vfs.RemoveAll() from internal/vfs"
+      analyze-types: true
+    gocritic:
+      disabled-checks:
+        - appendAssign
+        - hugeParam
+      disabled-tags:
+        - style
+    govet:
+      enable-all: true
+      disable:
+        - shadow
+        - fieldalignment
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

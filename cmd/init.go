@@ -1,7 +1,6 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -52,27 +51,26 @@ type initResult struct {
 	SelectedPlatforms []string       `json:"selectedPlatforms"`
 	OpenSpec          string         `json:"openspec"`
 	Superpowers       string         `json:"superpowers"`
-	Comet             map[string]int `json:"comet"`
+	OpsxSuper         map[string]int `json:"opsxSuper"`
 	SchemasInstalled  int            `json:"schemasInstalled"`
 }
 
 func runInit(cmd *cobra.Command, args []string) error {
-	projectPath := "."
-	if len(args) > 0 {
-		projectPath = args[0]
-	}
-	projectPath, err := filepath.Abs(projectPath)
+	projectPath, err := resolveProjectPath(args)
 	if err != nil {
 		return err
 	}
 
-	log := func(format string, a ...interface{}) {
-		if !initOpts.jsonOutput {
-			fmt.Fprintf(os.Stderr, format, a...)
-		}
-	}
+	log := newPrinter(initOpts.jsonOutput)
 
-	log("\n  spec-cli — OpenSpec + Superpowers Workflow Scaffolding\n\n")
+	log.printf("\n")
+	log.printf("   ███████╗██████╗ ███████╗ ██████╗\n")
+	log.printf("   ██╔════╝██╔══██╗██╔════╝██╔════╝\n")
+	log.printf("   ███████╗██████╔╝█████╗  ██║     \n")
+	log.printf("   ╚════██║██╔═══╝ ██╔══╝  ██║     \n")
+	log.printf("   ███████║██║     ███████╗╚██████╗\n")
+	log.printf("   ╚══════╝╚═╝     ╚══════╝ ╚═════╝\n")
+	log.printf("      OpenSpec + Superpowers Workflow\n\n")
 
 	// Step 1: Detect platforms
 	detected := platform.DetectPlatforms(projectPath)
@@ -81,41 +79,41 @@ func runInit(cmd *cobra.Command, args []string) error {
 		for i, p := range detected {
 			names[i] = p.Name
 		}
-		log("  Detected platforms: %s\n", strings.Join(names, ", "))
+		log.printf("  Detected platforms: %s\n", strings.Join(names, ", "))
 	}
 
 	// Step 2: Select scope
 	scope := initOpts.scope
 	if scope == "" {
 		if initOpts.yes {
-			scope = "project"
+			scope = ScopeProject
 		} else {
 			scope = selectScope()
 		}
 	}
-	log("  Scope: %s\n", scope)
+	log.printf("  Scope: %s\n", scope)
 
 	// Step 3: Select language
-	language := "en"
+	language := LangEN
 	if !initOpts.yes {
 		language = selectLanguage()
 	}
-	log("  Language: %s\n", languageName(language))
+	log.printf("  Language: %s\n", languageName(language))
 
 	// Step 4: Select platforms
 	selected := selectPlatforms(detected)
 	if len(selected) == 0 {
-		log("\n  No platforms selected. Exiting.\n")
+		log.printf("\n  No platforms selected. Exiting.\n")
 		if initOpts.jsonOutput {
 			printJSON(initResult{ProjectPath: projectPath, Scope: scope, Language: language})
 		}
 		return nil
 	}
-	log("  Selected: %s\n", strings.Join(platformNames(selected), ", "))
+	log.printf("  Selected: %s\n", strings.Join(platformNames(selected), ", "))
 
 	// Step 5: Determine base directory
 	baseDir := projectPath
-	if scope == "global" {
+	if scope == ScopeGlobal {
 		home, err := vfs.UserHomeDir()
 		if err != nil {
 			return err
@@ -129,42 +127,51 @@ func runInit(cmd *cobra.Command, args []string) error {
 	for i, p := range selected {
 		toolIDs[i] = p.OpenSpecToolID
 	}
-	log("\n  Installing OpenSpec for: %s\n", strings.Join(toolIDs, ", "))
+	log.printf("\n  Installing OpenSpec for: %s\n", strings.Join(toolIDs, ", "))
 	if err := openspec.InitOpenSpec(projectPath, toolIDs, scope); err != nil {
-		log("  OpenSpec: failed — %v\n", err)
+		log.printf("  OpenSpec: failed — %v\n", err)
 		openSpecStatus = "failed"
 	} else {
-		log("  OpenSpec: installed\n")
+		log.printf("  OpenSpec: installed\n")
 		openSpecStatus = "installed"
 	}
 
 	// Step 7: Detect Superpowers
 	superpowersStatus := "skipped"
-	log("\n  Superpowers: checking...\n")
+	log.printf("\n  Superpowers: checking...\n")
 	if checkSuperpowers() {
-		log("  Superpowers: detected (plugin-installed)\n")
+		log.printf("  Superpowers: detected (plugin-installed)\n")
 		superpowersStatus = "detected"
 	} else {
-		log("  Superpowers: not detected. Install with: claude plugin install superpowers@claude-plugins-official\n")
+		log.printf("  Superpowers: not detected. Install with: claude plugin install superpowers@claude-plugins-official\n")
 	}
 
-	// Step 8: Install Comet skill
-	cometResults := make(map[string]int)
+	// Step 8: Install opsx:super entry skill
+	opsxSuperResults := make(map[string]int)
 	for _, p := range selected {
 		skillsDir := p.SkillsDir
-		if scope == "global" && p.GlobalSkillsDir != "" {
+		if scope == ScopeGlobal && p.GlobalSkillsDir != "" {
 			skillsDir = p.GlobalSkillsDir
 		}
 		copied, _, err := skill.CopySkills(baseDir, skillsDir, language, initOpts.overwrite)
 		if err != nil {
-			log("  opsx:super -> %s: error — %v\n", p.Name, err)
+			log.printf("  opsx:super -> %s: error — %v\n", p.Name, err)
 		} else {
-			log("  opsx:super -> %s: %d copied\n", p.Name, copied)
-			cometResults[p.ID] = copied
+			log.printf("  opsx:super -> %s: %d copied\n", p.Name, copied)
+			opsxSuperResults[p.ID] = copied
 		}
 	}
 
-	// Step 9: Install schemas
+	// Step 9: Create working directories
+	specsDir := filepath.Join(projectPath, "docs", "superpowers", "specs")
+	plansDir := filepath.Join(projectPath, "docs", "superpowers", "plans")
+	if scope == ScopeProject {
+		_ = vfs.MkdirAll(specsDir, 0o755)
+		_ = vfs.MkdirAll(plansDir, 0o755)
+		log.printf("\n  Working directories: docs/superpowers/specs/, docs/superpowers/plans/\n")
+	}
+
+	// Step 10: Install schemas
 	schemasInstalled := 0
 	schemas, err := schema.ListSchemas()
 	if err == nil && len(schemas) > 0 {
@@ -183,23 +190,25 @@ func runInit(cmd *cobra.Command, args []string) error {
 				continue
 			}
 			if err := schema.InstallSchema(s.Name, projectPath); err != nil {
-				log("  Schema %s: failed — %v\n", s.Name, err)
+				log.printf("  Schema %s: failed — %v\n", s.Name, err)
 			} else {
 				schemasInstalled++
-				log("  Schema: %s installed -> openspec/schemas/%s/\n", s.Name, s.Name)
+				log.printf("  Schema: %s installed -> openspec/schemas/%s/\n", s.Name, s.Name)
 
 				if added, _ := schema.AppendClaudeMdFragment(s.Name, projectPath, language); added {
-					log("  CLAUDE.md: appended %s workflow fragment\n", s.Name)
+					log.printf("  CLAUDE.md: appended %s workflow fragment\n", s.Name)
 				}
 			}
 		}
 	}
 
 	// Summary
-	if !initOpts.jsonOutput {
-		log("\n  Get started:\n")
-		log("    openspec new --schema superpowers-bridge \"your idea\"\n\n")
-	}
+	log.printf("\n  spec-cli setup complete! (scope: %s)\n\n", scope)
+	log.printf("  Get started:\n")
+	log.printf("    /opsx:super \"your idea\"\n")
+	log.printf("    openspec new change \"your-idea\" --schema superpowers-bridge --description \"your idea\"\n")
+	log.printf("\n  Quick commands (via AI agent skills):\n")
+	log.printf("    /opsx:super \"your idea\" — OpenSpec + Superpowers workflow\n\n")
 
 	if initOpts.jsonOutput {
 		platformIDs := make([]string, len(selected))
@@ -213,7 +222,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 			SelectedPlatforms: platformIDs,
 			OpenSpec:          openSpecStatus,
 			Superpowers:       superpowersStatus,
-			Comet:             cometResults,
+			OpsxSuper:         opsxSuperResults,
 			SchemasInstalled:  schemasInstalled,
 		})
 	}
@@ -225,26 +234,32 @@ func runInit(cmd *cobra.Command, args []string) error {
 
 func selectScope() string {
 	var scope string
-	huh.NewSelect[string]().
+	field := huh.NewSelect[string]().
 		Title("Install scope:").
 		Options(
 			huh.NewOption("Project (current directory)", "project"),
 			huh.NewOption("Global (home directory)", "global"),
 		).
-		Value(&scope).
+		Value(&scope)
+	_ = huh.NewForm(huh.NewGroup(field)).
+		WithInput(defaultIO.In).
+		WithOutput(defaultIO.ErrOut).
 		Run()
 	return scope
 }
 
 func selectLanguage() string {
 	var lang string
-	huh.NewSelect[string]().
+	field := huh.NewSelect[string]().
 		Title("Language for opsx:super skills:").
 		Options(
 			huh.NewOption("English", "en"),
 			huh.NewOption("简体中文", "zh"),
 		).
-		Value(&lang).
+		Value(&lang)
+	_ = huh.NewForm(huh.NewGroup(field)).
+		WithInput(defaultIO.In).
+		WithOutput(defaultIO.ErrOut).
 		Run()
 	return lang
 }
@@ -283,12 +298,15 @@ func selectPlatforms(detected []platform.Platform) []platform.Platform {
 		}
 	}
 
-	huh.NewMultiSelect[string]().
+	field := huh.NewMultiSelect[string]().
 		Title("Select AI coding platforms").
 		Description("x: toggle • a: all • ↑↓: move • /: search • enter: confirm").
 		Options(options...).
 		Value(&selected).
-		Filterable(true).
+		Filterable(true)
+	_ = huh.NewForm(huh.NewGroup(field)).
+		WithInput(defaultIO.In).
+		WithOutput(defaultIO.ErrOut).
 		Run()
 
 	if len(selected) == 0 {
@@ -315,18 +333,20 @@ func selectSchemas(schemas []schema.Info) []string {
 
 	// Build multi-select options with all schemas pre-selected.
 	options := make([]huh.Option[string], len(schemas))
-	defaultSelected := make([]string, len(schemas))
+	selected := make([]string, len(schemas))
 	for i, s := range schemas {
 		label := fmt.Sprintf("%s (v%s)", s.Name, s.Version)
 		options[i] = huh.NewOption(label, s.Name)
-		defaultSelected[i] = s.Name
+		selected[i] = s.Name
 	}
 
-	var selected []string
-	huh.NewMultiSelect[string]().
+	field := huh.NewMultiSelect[string]().
 		Title("Select schema bundles:").
 		Options(options...).
-		Value(&selected).
+		Value(&selected)
+	_ = huh.NewForm(huh.NewGroup(field)).
+		WithInput(defaultIO.In).
+		WithOutput(defaultIO.ErrOut).
 		Run()
 
 	return selected
@@ -417,12 +437,4 @@ func contains(slice []string, item string) bool {
 		}
 	}
 	return false
-}
-
-func printJSON(v interface{}) {
-	data, err := json.MarshalIndent(v, "", "  ")
-	if err != nil {
-		return
-	}
-	fmt.Println(string(data))
 }

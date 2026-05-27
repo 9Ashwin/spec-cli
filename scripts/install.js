@@ -26,7 +26,33 @@ const arch = ARCH_MAP[process.arch];
 const isWindows = process.platform === "win32";
 const ext = isWindows ? ".zip" : ".tar.gz";
 const archiveName = `${NAME}-${VERSION}-${platform}-${arch}${ext}`;
+const DEFAULT_MIRROR_HOST = "https://registry.npmmirror.com";
+const ALLOWED_HOSTS = new Set([
+  "github.com",
+  "objects.githubusercontent.com",
+  "registry.npmmirror.com",
+]);
+
 const GITHUB_URL = `https://github.com/${REPO}/releases/download/v${VERSION}/${archiveName}`;
+const MIRROR_URL = `${DEFAULT_MIRROR_HOST}/-/binary/${PKG}/${VERSION}/${archiveName}`;
+
+/**
+ * Build ordered list of download URLs to try.
+ * 1. Custom registry from npm_config_registry (if set and https)
+ * 2. npmmirror fallback
+ * 3. GitHub releases
+ */
+function buildUrls() {
+  const urls = [];
+  const customRegistry = process.env.npm_config_registry;
+  if (customRegistry && customRegistry.startsWith("https://") && !customRegistry.includes("registry.npmjs.org")) {
+    const base = customRegistry.replace(/\/$/, "");
+    urls.push(`${base}/-/binary/${PKG}/${VERSION}/${archiveName}`);
+  }
+  urls.push(MIRROR_URL);
+  urls.push(GITHUB_URL);
+  return urls;
+}
 
 const binDir = path.join(__dirname, "..", "bin");
 const dest = path.join(binDir, NAME + (isWindows ? ".exe" : ""));
@@ -95,7 +121,20 @@ function install() {
   const archivePath = path.join(tmpDir, archiveName);
 
   try {
-    download(GITHUB_URL, archivePath);
+    const urls = buildUrls();
+    let downloaded = false;
+    for (const url of urls) {
+      try {
+        download(url, archivePath);
+        downloaded = true;
+        break;
+      } catch (e) {
+        console.error(`[spec-cli] failed to download from ${url}: ${e.message}`);
+      }
+    }
+    if (!downloaded) {
+      throw new Error(`All download sources failed for ${archiveName}`);
+    }
 
     const expectedHash = getExpectedChecksum(archiveName);
     verifyChecksum(archivePath, expectedHash);

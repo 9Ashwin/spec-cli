@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/9Ashwin/spec-cli/internal/build"
 	"github.com/spf13/cobra"
@@ -37,14 +36,15 @@ Examples:
 // Execute runs the root command and returns the process exit code.
 func Execute() int {
 	if err := rootCmd.Execute(); err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
+		fmt.Fprintln(defaultIO.ErrOut, "Error:", err)
 		return 1
 	}
 	return 0
 }
 
 func init() {
-	rootCmd.Version = build.Version
+	rootCmd.Version = build.GetInfo()
 	rootCmd.SetVersionTemplate("spec-cli version {{.Version}}\n")
-	rootCmd.AddCommand(initCmd, statusCmd, updateCmd, doctorCmd)
+	applyCommandIO()
+	rootCmd.AddCommand(initCmd, statusCmd, updateCmd, doctorCmd, completionCmd)
 }
