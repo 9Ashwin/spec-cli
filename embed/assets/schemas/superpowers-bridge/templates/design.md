@@ -2,8 +2,8 @@
 
 <!--
 Background, current state, constraints, stakeholders.
-brainstorm.md 記錄了探索過程（替代方案 + 選定方向）；
-本檔承接選定方向，展開完整技術設計。
+brainstorm.md 记录了探索过程（替代方案 + 选定方向）；
+本文档承接选定方向，展开完整技术设计。
 -->
 
 ## Goals / Non-Goals
@@ -17,31 +17,31 @@ brainstorm.md 記錄了探索過程（替代方案 + 選定方向）；
 ## Decisions
 
 <!--
-所有技術決策的唯一來源（single source of truth）。
-brainstorm.md 的 Agreed Approach 記錄了「選了哪條路」，
-本段記錄「那條路上的每個岔口怎麼選的」。
+所有技术决策的唯一来源（single source of truth）。
+brainstorm.md 的 Agreed Approach 记录了"选了哪条路"，
+本段记录"那条路上的每个岔口怎么选的"。
 
-每個決策建議結構：
-### D1：<決策標題>
-- **選擇**：<採用的做法>
-- **理由**：<為何這樣選>
-- **已考慮 alternative**：<被拒方案 + 拒絕原因>
+每个决策建议结构：
+### D1：<决策标题>
+- **选择**：<采用的做法>
+- **理由**：<为何这样选>
+- **已考虑 alternative**：<被拒方案 + 拒绝原因>
 -->
 
 ## Risks / Trade-offs
 
 <!--
 Known risks and trade-offs.
-Format: [Risk] <描述> → Mitigation: <緩解措施>
-[Trade-off] <取捨描述> → 接受理由
+Format: [Risk] <描述> → Mitigation: <缓解措施>
+[Trade-off] <取舍描述> → 接受理由
 -->
 
 ## Migration Plan
 
 <!--
-部署順序、rollback 策略、驗收條件。
-若本 change 不涉及部署變更（純加套件、無 endpoint / DB 變更），
-可寫「N/A — 本 change 不涉及部署變更」。
+部署顺序、rollback 策略、验收条件。
+若本 change 不涉及部署变更（纯新增依赖、无 endpoint / DB 变更），
+可写"N/A — 本 change 不涉及部署变更"。
 -->
 
 ## Open Questions

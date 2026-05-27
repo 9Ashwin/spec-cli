@@ -1,12 +1,12 @@
 <!--
 Raw capture of brainstorming output.
 
-本檔原樣捕捉 brainstorming skill 的產出，不強制結構。
-Skill 的自然產出通常是 decision log 格式（背景 → 決議鏈 Q1-Qn → 設計取捨），
-但依對話內容可能有不同組織方式。
+本文件原样捕捉 brainstorming skill 的产出，不强制结构。
+Skill 的自然产出通常是 decision log 格式（背景 → 决议链 Q1-Qn → 设计取舍），
+但依对话内容可能有不同组织方式。
 
-design.md 從本檔萃取並重新整理為結構化設計文件。
+design.md 从本文件提取并重新整理为结构化设计文件。
 
-不要將本檔的內容複製到 design.md — design.md 是獨立的重組產物，
-兩者互補但不重疊。
+不要将本文件的内容复制到 design.md — design.md 是独立的重组产物，
+两者互补但不重叠。
 -->
