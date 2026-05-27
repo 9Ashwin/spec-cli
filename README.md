@@ -37,7 +37,7 @@ OpenSpec + Superpowers 工作流脚手架工具 — 为人类和 AI Agent 而生
 **方式一 — 从 npm 安装（推荐）：**
 
 ```bash
-npx @9ashwin/spec-cli@latest init
+npx ashwin-spec@latest init
 ```
 
 **方式二 — 从源码安装：**
@@ -97,7 +97,7 @@ spec-cli doctor
 **第一步 — 安装并初始化**
 
 ```bash
-npx @9ashwin/spec-cli@latest init --yes
+npx ashwin-spec@latest init --yes
 ```
 
 **第二步 — 验证**
