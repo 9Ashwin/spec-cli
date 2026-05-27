@@ -2,6 +2,7 @@
 spec-cli
 dist/
 bin/
+checksums.txt
 
 # Dependencies
 node_modules/
