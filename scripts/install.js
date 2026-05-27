@@ -6,7 +6,7 @@ const crypto = require("crypto");
 
 const VERSION = require("../package.json").version;
 const REPO = "9Ashwin/spec-cli";
-const NAME = "spec-cli";
+const NAME = "@9ashwin/spec-cli";
 
 const PLATFORM_MAP = {
   darwin: "darwin",

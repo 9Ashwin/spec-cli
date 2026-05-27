@@ -1,5 +1,5 @@
 {
-  "name": "spec-cli",
+  "name": "@9ashwin/spec-cli",
   "version": "0.1.0",
   "description": "OpenSpec + Superpowers workflow scaffolding tool — install OpenSpec, Superpowers, and schema bundles into AI coding platform projects",
   "bin": {
