@@ -295,7 +295,7 @@ func selectPlatforms(detected []platform.Platform) []platform.Platform {
 			label += " (detected)"
 		}
 		options = append(options, huh.NewOption(label, p.ID))
-		if len(detected) == 0 || detectedSet[p.ID] {
+		if detectedSet[p.ID] {
 			selected = append(selected, p.ID)
 		}
 	}
