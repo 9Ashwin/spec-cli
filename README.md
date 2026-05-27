@@ -34,13 +34,19 @@ OpenSpec + Superpowers 工作流脚手架工具 — 为人类和 AI Agent 而生
 
 选择以下**一种**方式：
 
-**方式一 — 从 npm 安装（推荐）：**
+**方式一 — 全局安装（推荐）：**
+
+```bash
+npm install -g ashwin-spec@latest
+```
+
+**方式二 — 按需运行：**
 
 ```bash
 npx ashwin-spec@latest init
 ```
 
-**方式二 — 从源码安装：**
+**方式三 — 从源码安装：**
 
 需要 Go 1.23+。
 
@@ -94,19 +100,25 @@ spec-cli doctor
 
 > 以下步骤供 AI Agent 帮助用户安装时使用。
 
-**第一步 — 安装并初始化**
+**第一步 — 安装**
 
 ```bash
-npx ashwin-spec@latest init --yes
+npm install -g ashwin-spec@latest
 ```
 
-**第二步 — 验证**
+**第二步 — 初始化**
+
+```bash
+spec-cli init --yes
+```
+
+**第三步 — 验证**
 
 ```bash
 spec-cli doctor
 ```
 
-**第三步 — 开始工作**
+**第四步 — 开始工作**
 
 ```bash
 # 使用 superpowers-bridge schema 创建新变更
