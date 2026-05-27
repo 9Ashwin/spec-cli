@@ -56,11 +56,38 @@ go install .
 # 1. 初始化工作流脚手架（交互式）
 spec-cli init
 
-# 2. 查看当前变更状态
+# 第二步：在 Claude Code 中输入 /comet 开始新变更
+# 或在终端直接：
+openspec new --schema superpowers-bridge "你的需求描述"
+
+# 第三步：按 schema 指令逐步推进
+# brainstorming → design → plan → build → verify → archive
+
+# 查看进度
 spec-cli status
 
-# 3. 诊断安装健康度
+# 健康检查
 spec-cli doctor
+```
+
+### 完整使用流程
+
+```
+1. spec-cli init          — 搭建脚手架（一次性，安装 OpenSpec + skill + schema）
+
+2. /comet                 — 在 Claude Code 中启动新变更
+   或 openspec new ...    — 终端直接创建
+
+3. brainstorming           — AI 跟你讨论需求、收敛设计方向
+   design                  — 写出设计文档
+   plan                    — 制定实现计划
+   build                   — 写代码、跑测试
+   verify                  — 验证实现正确性
+   archive                 — 归档、同步 spec
+
+4. spec-cli status         — 随时查看活跃变更
+   spec-cli doctor         — 诊断环境是否正常
+   spec-cli update         — 升级 skill 和 schema 版本
 ```
 
 ## 快速开始（AI Agent）
