@@ -26,13 +26,13 @@ artifacts:
     template: brainstorm.md
     instruction: |
       PRECHECK — required skill availability:
-      Before invoking, confirm `superpowers:brainstorming` appears in
+      Before invoking, confirm `brainstorming` appears in
       your available skills list. If missing, STOP and inform the user
       that the Superpowers plugin must be installed (or that they can
       explicitly opt to write brainstorm.md manually using the template
       below). Do NOT silently fall back.
 
-      Use the Skill tool to invoke **superpowers:brainstorming**.
+      Use the Skill tool to invoke **brainstorming**.
 
       IMPORTANT output redirection:
       - Do NOT write to `docs/superpowers/specs/`. Instead, write the
@@ -169,13 +169,13 @@ artifacts:
     template: plan.md
     instruction: |
       PRECHECK — required skill availability:
-      Before invoking, confirm `superpowers:writing-plans` appears in
+      Before invoking, confirm `writing-plans` appears in
       your available skills list. If missing, STOP and inform the user
       that the Superpowers plugin must be installed (or that they can
       explicitly opt to write plan.md manually using the template
       below). Do NOT silently fall back.
 
-      Use the Skill tool to invoke **superpowers:writing-plans**.
+      Use the Skill tool to invoke **writing-plans**.
 
       IMPORTANT output redirection:
       - Do NOT write to `docs/superpowers/plans/`. Instead, write
@@ -469,11 +469,11 @@ apply:
        Confirm each appears in your available skills list before
        proceeding:
 
-       - superpowers:using-git-worktrees
-       - superpowers:subagent-driven-development
-         (transitively: superpowers:test-driven-development,
-                        superpowers:requesting-code-review)
-       - superpowers:finishing-a-development-branch
+       - using-git-worktrees
+       - subagent-driven-development
+         (transitively: test-driven-development,
+                        requesting-code-review)
+       - finishing-a-development-branch
 
        If any required skill is missing, STOP and inform the user —
        do NOT proceed and do NOT silently fall back to manual
@@ -490,13 +490,13 @@ apply:
        start so the user isn't surprised mid-cycle.
 
     1. **Workspace**: Use the Skill tool to invoke
-       **superpowers:using-git-worktrees** to create an isolated
+       **using-git-worktrees** to create an isolated
        git worktree for this change.
 
     2. **Executor — subagent-driven-development**:
 
        Use the Skill tool to invoke
-       **superpowers:subagent-driven-development** to execute
+       **subagent-driven-development** to execute
        the plan.md micro-tasks with fresh subagents per task.
 
        Tell the executor:
@@ -508,16 +508,16 @@ apply:
        subagent-driven-development internally enforces the
        following skills, so you do NOT need to invoke them
        manually:
-       - **superpowers:test-driven-development** — every task
+       - **test-driven-development** — every task
          follows RED-GREEN-REFACTOR. Implementation code written
          before a failing test is deleted.
-       - **superpowers:requesting-code-review** — after each
+       - **requesting-code-review** — after each
          task, a code-reviewer subagent is dispatched to catch
          spec compliance and code quality issues. A final review
          runs for the entire implementation before apply
          concludes.
 
-       This schema does NOT support `superpowers:executing-plans`
+       This schema does NOT support `executing-plans`
        as a fallback for non-subagent platforms. Per its SKILL.md,
        executing-plans does not transitively activate TDD or
        code-review — defeating the rigor that Superpowers brings.
@@ -557,7 +557,7 @@ apply:
     6. **Completion (PR is the LAST step)**:
 
        After retrospective + archive are both done, use the Skill
-       tool to invoke **superpowers:finishing-a-development-branch**.
+       tool to invoke **finishing-a-development-branch**.
 
        The branch's PR diff MUST contain the complete archived
        cycle. If it doesn't (e.g., because retrospective or archive
