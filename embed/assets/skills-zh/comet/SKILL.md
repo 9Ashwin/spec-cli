@@ -1,26 +1,14 @@
 ---
 name: comet
-description: "Comet — OpenSpec + Superpowers 开发工作流。"
+description: "用 Superpowers 工作流启动新变更。用户想开发功能或修复 bug 时使用。"
 ---
 
-# Comet — OpenSpec + Superpowers 开发工作流
+# Comet
 
-## 快速开始
+调用时直接执行：
 
 ```bash
-# 创建新变更
-openspec new --schema superpowers-bridge "你的想法"
-
-# 查看活跃变更
-openspec list --json
-
-# 完成后归档
-openspec archive --change "<name>" -y
+openspec new --schema superpowers-bridge "<描述>"
 ```
 
-## 工作流
-
-OpenSpec 负责 WHAT（提案、spec 生命周期、归档）。
-Superpowers 负责 HOW（头脑风暴、设计、计划、构建、验证）。
-
-`superpowers-bridge` schema 将两者桥接起来 —— 按每步注入的 artifact 指令操作即可。
+然后按 schema 注入的产物指令逐步推进（proposal → design → plan → tasks → verify → archive）。

@@ -1,26 +1,14 @@
 ---
 name: comet
-description: "Comet — OpenSpec + Superpowers development workflow."
+description: "Start new change with Superpowers workflow. Use when user wants to build a feature or fix a bug."
 ---
 
-# Comet — OpenSpec + Superpowers Development Workflow
+# Comet
 
-## Quick Start
+When invoked, run:
 
 ```bash
-# Start a new change
-openspec new --schema superpowers-bridge "your idea"
-
-# Check active changes
-openspec list --json
-
-# Archive when done
-openspec archive --change "<name>" -y
+openspec new --schema superpowers-bridge "<description>"
 ```
 
-## Workflow
-
-OpenSpec handles the WHAT (proposal, spec lifecycle, archive).
-Superpowers handles the HOW (brainstorming, design, plan, build, verify).
-
-The `superpowers-bridge` schema connects them — follow the artifact instructions injected at each step.
+Then follow the artifact instructions from the schema step by step (proposal → design → plan → tasks → verify → archive).
