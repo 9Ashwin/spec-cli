@@ -136,14 +136,6 @@ if (require.main === module) {
     process.exit(1);
   }
 
-  // Skip binary download for npx postinstall (binary not needed yet).
-  const isNpxPostinstall =
-    process.env.npm_command === "exec" && !process.env.SPEC_CLI_RUN;
-
-  if (isNpxPostinstall) {
-    process.exit(0);
-  }
-
   try {
     install();
   } catch (err) {
