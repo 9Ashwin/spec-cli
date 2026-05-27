@@ -302,7 +302,7 @@ func selectPlatforms(detected []platform.Platform) []platform.Platform {
 
 	huh.NewMultiSelect[string]().
 		Title("Select AI coding platforms").
-		Description("x: toggle • ↑↓: move • enter: confirm").
+		Description("x: toggle • a: all • ↑↓: move • /: search • enter: confirm").
 		Options(options...).
 		Value(&selected).
 		Filterable(true).
