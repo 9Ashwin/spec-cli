@@ -121,19 +121,24 @@ function install() {
   const archivePath = path.join(tmpDir, archiveName);
 
   try {
-    const urls = buildUrls();
-    let downloaded = false;
-    for (const url of urls) {
-      try {
-        download(url, archivePath);
-        downloaded = true;
-        break;
-      } catch (e) {
-        console.error(`[spec-cli] failed to download from ${url}: ${e.message}`);
+    const packagedArchive = path.join(__dirname, "..", "dist", archiveName);
+    if (fs.existsSync(packagedArchive)) {
+      fs.copyFileSync(packagedArchive, archivePath);
+    } else {
+      const urls = buildUrls();
+      let downloaded = false;
+      for (const url of urls) {
+        try {
+          download(url, archivePath);
+          downloaded = true;
+          break;
+        } catch (e) {
+          console.error(`[spec-cli] failed to download from ${url}: ${e.message}`);
+        }
       }
-    }
-    if (!downloaded) {
-      throw new Error(`All download sources failed for ${archiveName}`);
+      if (!downloaded) {
+        throw new Error(`All download sources failed for ${archiveName}`);
+      }
     }
 
     const expectedHash = getExpectedChecksum(archiveName);
