@@ -281,15 +281,45 @@ func selectPlatforms(detected []platform.Platform) []platform.Platform {
 		return platform.AllPlatforms
 	}
 
-	if len(detected) > 0 {
-		return detected
+	detectedSet := make(map[string]bool)
+	for _, p := range detected {
+		detectedSet[p.ID] = true
 	}
 
-	return platform.AllPlatforms
+	// Build multi-select options with detected platforms pre-selected.
+	options := make([]huh.Option[string], 0, len(platform.AllPlatforms))
+	defaultSelected := make([]string, 0, len(detected))
+	for _, p := range platform.AllPlatforms {
+		label := p.Name
+		if detectedSet[p.ID] {
+			label += " (detected)"
+			defaultSelected = append(defaultSelected, p.ID)
+		}
+		options = append(options, huh.NewOption(label, p.ID))
+	}
+
+	var selected []string
+	huh.NewMultiSelect[string]().
+		Title("Select AI coding platforms:").
+		Options(options...).
+		Value(&selected).
+		Run()
+
+	if len(selected) == 0 {
+		return nil
+	}
+
+	var result []platform.Platform
+	for _, id := range selected {
+		if p := platform.ByID(id); p != nil {
+			result = append(result, *p)
+		}
+	}
+	return result
 }
 
 func selectSchemas(schemas []schema.Info) []string {
-	if initOpts.yes {
+	if initOpts.yes || len(schemas) <= 1 {
 		names := make([]string, len(schemas))
 		for i, s := range schemas {
 			names[i] = s.Name
@@ -297,11 +327,23 @@ func selectSchemas(schemas []schema.Info) []string {
 		return names
 	}
 
-	names := make([]string, len(schemas))
+	// Build multi-select options with all schemas pre-selected.
+	options := make([]huh.Option[string], len(schemas))
+	defaultSelected := make([]string, len(schemas))
 	for i, s := range schemas {
-		names[i] = s.Name
+		label := fmt.Sprintf("%s (v%s)", s.Name, s.Version)
+		options[i] = huh.NewOption(label, s.Name)
+		defaultSelected[i] = s.Name
 	}
-	return names
+
+	var selected []string
+	huh.NewMultiSelect[string]().
+		Title("Select schema bundles:").
+		Options(options...).
+		Value(&selected).
+		Run()
+
+	return selected
 }
 
 // --- Superpowers detection ---
