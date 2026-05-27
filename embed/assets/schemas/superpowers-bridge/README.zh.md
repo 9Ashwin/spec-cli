@@ -195,6 +195,27 @@ OpenSpec 管 **“做什么”**(artifact 生命周期:proposal / specs / tasks 
 
 ## 工作流与整合点
 
+### 运行模型:连续、带门禁、可恢复
+
+`superpowers-bridge` 的目标是让流程像一条完整工作流,而不是一堆
+互不相干的命令。Agent 应该自动推进已经满足输入与 exit gate 的阶段,
+但进度判断必须以 OpenSpec status 和磁盘上的 artifact 为准。
+
+这**不**表示“无条件一口气跑完”。下面这些节点必须停下来等用户决定:
+
+- brainstorm / design 方向尚未获确认
+- 缺少必要的 Superpowers skill 或项目工具
+- proposal 的 capability 范围不清楚
+- design 还有阻塞性 open question
+- plan 超出已确认的 specs/tasks 范围
+- verification 失败
+- spec/design drift 改变了实现范围
+- branch、merge、PR、keep、discard 的处理选择
+
+恢复时,重新运行 `openspec status --change <name> --json`,用
+`openspec instructions ... --json` 读取下一步 artifact instruction,
+并检查现有文件。不要根据聊天历史推断进度。
+
 ### Artifact DAG
 
 ```text
@@ -330,6 +351,9 @@ Superpowers skill 有默认输出路径(例如 brainstorming 写到 `docs/superp
 /opsx:continue         # → retrospective(生成 retrospective.md,§0 + 6 sections)
 /opsx:archive          # 归档
 ```
+
+快速流程是连续但带门禁的。遇到上面列出的阻塞决策点时应暂停,
+等用户明确选择后再从 OpenSpec status 恢复。
 
 ### 逐步流程
 ```bash

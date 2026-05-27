@@ -15,6 +15,19 @@ This repo uses [`superpowers-bridge`](https://github.com/JiangWay/openspec-schem
 | User explicitly says bug fix / typo / config tweak / doc update | Direct PR — **do NOT** open a change (see skip rules below) |
 | User is mid-change | Advance with `/opsx:continue`, `/opsx:apply`, `/opsx:verify`, or `/opsx:archive` |
 
+### Continuous but gated execution
+
+When inside a `superpowers-bridge` change, use OpenSpec status and
+artifact instructions as the source of truth. Auto-advance through
+unambiguous completed phases, but pause for explicit decisions:
+unapproved design direction, missing required skills/tools, ambiguous
+capability scope, blocking design questions, plan scope expansion,
+verification failure, spec/design drift that changes scope, and final
+branch/PR handling.
+
+On resume, rerun `openspec status --change <name> --json` and inspect
+the existing artifacts. Do not infer progress from chat history.
+
 ### When NOT to use opsx (direct PR)
 
 | Scenario | Direct PR? |

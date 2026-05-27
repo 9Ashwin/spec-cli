@@ -195,6 +195,29 @@ If any condition is missing, keep brainstorming. When all five hold:
 
 ## Workflow & integration
 
+### Operating model: continuous, gated, resumable
+
+`superpowers-bridge` is meant to feel like one coherent workflow, not a
+pile of commands. Agents should auto-advance through phases whose inputs
+and exit gates are already satisfied, while using OpenSpec status and
+on-disk artifacts as the source of truth.
+
+That does **not** mean "run everything without stopping." The workflow
+has blocking decision points:
+
+- Brainstorm/design direction is not approved yet
+- Required Superpowers skills or project tools are missing
+- Proposal capability scope is ambiguous
+- Design has blocking open questions
+- Plan expands beyond approved specs/tasks
+- Verification fails
+- Spec/design drift changes implementation scope
+- Branch, merge, PR, keep, or discard handling
+
+On resume, re-run `openspec status --change <name> --json`, read the
+next artifact instruction with `openspec instructions ... --json`, and
+inspect the existing files. Do not infer progress from chat history.
+
 ### Artifact DAG
 
 ```text
@@ -330,6 +353,10 @@ Implemented purely via context injection at invocation time, not by modifying sk
 /opsx:continue         # → retrospective (produces retrospective.md, §0 + 6 sections)
 /opsx:archive          # archive
 ```
+
+The quick flow is continuous but gated. It should pause for the blocking
+decision points listed above and resume from OpenSpec status after the
+user decides.
 
 ### Step-by-step flow
 ```bash

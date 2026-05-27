@@ -101,6 +101,12 @@ Use the returned `contextFiles`, `tasks`, `progress`, and `instruction` to run t
 
 Do not delegate Continuous Execution to `openspec-continue-change` or `/opsx:continue`; that skill intentionally stops after one artifact. `opsx:super` owns the status -> instructions -> artifact/action -> status loop until a stop condition below.
 
+Treat this as a gated workflow, not an unconditional run-to-the-end prompt:
+
+- Auto-advance only when the current artifact/action has satisfied its schema instruction and exit gate.
+- On resume, trust OpenSpec status/instructions and files on disk, not conversation history.
+- When a schema instruction says to stop for a user decision, stop and ask. Do not choose defaults for design approval, scope expansion, verification failure handling, or branch/PR handling.
+
 Stop only when one of these happens:
 
 - The schema workflow is complete.

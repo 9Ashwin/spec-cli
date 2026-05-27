@@ -18,6 +18,12 @@ description: >
   and plan for implementation guidance).
   Apply phase uses git worktrees + subagent-driven-development
   (brings TDD and code-review transitively).
+  Operational model: this schema is a resumable phase workflow. Agents
+  must use OpenSpec status/instructions and on-disk artifacts as the
+  source of truth, not chat history. Auto-advance through unambiguous
+  completed phases, but stop at explicit decision points: design
+  approval, missing required skills/tools, verification failure,
+  spec/design drift that changes scope, and branch/PR handling.
 
 artifacts:
   - id: brainstorm
@@ -33,6 +39,12 @@ artifacts:
       below). Do NOT silently fall back.
 
       Use the Skill tool to invoke **superpowers:brainstorming**.
+
+      RESUME RULE:
+      If brainstorm.md already exists, read it before doing anything
+      else. Continue only from unresolved questions or explicit user
+      feedback. Do not restart brainstorming from scratch unless the
+      user asks for a new direction.
 
       IMPORTANT output redirection:
       - Do NOT write to `docs/superpowers/specs/`. Instead, write the
@@ -54,6 +66,12 @@ artifacts:
       3. Propose 2-3 approaches with trade-offs
       4. Present design sections for approval
       5. Output the validated design
+
+      EXIT GATE:
+      Stop here until the user has approved the proposed design
+      direction. Do not create proposal.md from a brainstorm that still
+      has blocking open questions, unresolved major alternatives, or
+      expanding scope.
     requires: []
 
   - id: proposal
@@ -78,6 +96,12 @@ artifacts:
       proposal and specs phases. Each capability listed here will need a spec file.
 
       Keep it concise (1-2 pages). Focus on the "why" not the "how".
+
+      EXIT GATE:
+      proposal.md is complete only when Capabilities names every new
+      or modified requirement-bearing capability. If capability scope
+      is ambiguous, STOP and ask the user to choose before generating
+      specs.
     requires:
       - brainstorm
 
@@ -110,6 +134,13 @@ artifacts:
 
       Focus on architecture and approach, not line-by-line implementation.
       Good design docs explain the "why" behind technical decisions.
+
+      EXIT GATE:
+      design.md must contain no blocking Open Questions before tasks
+      are generated. Non-blocking unknowns are allowed only when they
+      include owner, impact, and when they will be resolved. If a design
+      decision changes proposal scope, return to proposal/specs before
+      continuing.
     requires:
       - brainstorm
 
@@ -138,6 +169,12 @@ artifacts:
       - Every requirement MUST have at least one scenario.
 
       Specs should be testable - each scenario is a potential test case.
+
+      EXIT GATE:
+      Before leaving this phase, run or prepare to run OpenSpec
+      validation for the change. If a delta spec cannot be validated or
+      does not map back to proposal.md Capabilities, fix the spec before
+      generating tasks.
     requires:
       - proposal
 
@@ -159,6 +196,12 @@ artifacts:
 
       Reference specs for what needs to be built and design.md for
       how to build it (architecture decisions, trade-offs, migration).
+
+      EXIT GATE:
+      Every normative requirement/scenario introduced by specs/ must be
+      represented by at least one task, test task, or explicit
+      non-implementation note. If tasks reveal missing design decisions,
+      return to design.md instead of papering over them in tasks.md.
     requires:
       - specs
       - design
@@ -190,6 +233,12 @@ artifacts:
       Pass the tasks.md content to the skill as the input for
       decomposition. The plan should reference the specs and
       design artifacts in this change directory.
+
+      EXIT GATE:
+      plan.md must identify test commands, commit points, expected file
+      touch points, and any deferred manual dogfood items marked `[~]`.
+      If the plan expands beyond the approved design or tasks, return
+      to the relevant artifact before entering apply.
     requires:
       - tasks
 
@@ -199,6 +248,11 @@ artifacts:
     template: verify.md
     instruction: |
       PRECHECK — implementation evidence:
+      RESUME RULE:
+      On every verify attempt, re-read tasks.md, plan.md, design.md,
+      specs/, and the current git diff/commit range. Do not trust a
+      previous chat summary about what was implemented or tested.
+
       Before producing verify.md, run BOTH commands. If either
       returns 0, STOP and tell the user that apply phase has not
       yet produced reviewable changes.
@@ -298,6 +352,13 @@ artifacts:
       If `openspec-verify-change` skill is unavailable, fall back to
       running the numbered checks above manually and recording results
       in verify.md.
+
+      BLOCKING FAILURE RULE:
+      If Overall Decision is FAIL, STOP after writing verify.md. Present
+      the failed checks, classify which are blocking, and ask the user
+      whether to fix now, split scope, or explicitly accept a
+      non-blocking deviation. Do not automatically return to apply or
+      edit implementation artifacts without that decision.
     requires:
       - plan
 
@@ -461,6 +522,14 @@ apply:
   requires: [plan]
   tracks: tasks.md
   instruction: |
+    RESUME RULE:
+    Before taking apply action, inspect `openspec status --change
+    <change-name> --json`, then read plan.md and tasks.md from the
+    change directory. If work has already started, continue from the
+    next unchecked task and current git state. Do not redo completed
+    tasks or regenerate earlier artifacts unless status/instructions
+    say they are incomplete or the user asks for a redesign.
+
     Before implementing, set up an isolated workspace and executor:
 
     0. **Pre-flight — verify required Superpowers skills**:
@@ -527,7 +596,9 @@ apply:
     3. **Verification**: When all tasks are done, produce the
        `verify` artifact by invoking **openspec-verify-change**
        to check completeness, correctness, and coherence.
-       Re-run verify until all blocking issues are resolved.
+       Re-run verify until all blocking issues are resolved, but
+       when verify reports FAIL, stop and ask the user how to handle
+       the failure before returning to implementation.
 
     4. **Retrospective (write while context is hot)**:
 
@@ -571,6 +642,10 @@ apply:
        The branch's PR diff MUST contain the complete archived
        cycle. If it doesn't (e.g., because retrospective or archive
        was skipped), STOP and complete those first.
+
+       Branch handling is a user decision point. Present the choices
+       from the finishing skill and wait for the user's explicit choice;
+       do not merge, push, open a PR, keep, or discard based on defaults.
 
        This is the canonical opening sequence for the PR — do NOT
        reorder.

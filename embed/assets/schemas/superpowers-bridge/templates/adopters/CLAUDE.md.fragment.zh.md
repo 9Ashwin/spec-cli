@@ -15,6 +15,17 @@
 | 用户明确说 bug fix / typo / config 微调 / 文件更新 | 直接 PR,**不**建 change(见下方 skip 规则) |
 | 已经在某个 change 中 | `/opsx:continue` 或 `/opsx:apply` / `/opsx:verify` / `/opsx:archive` 持续推进 |
 
+### 连续但带门禁的执行
+
+进入 `superpowers-bridge` change 后,以 OpenSpec status 和 artifact
+instructions 作为进度事实来源。已经满足输入和 exit gate 的阶段可以自动推进,
+但遇到这些明确决策点必须暂停:设计方向未确认、缺少必要 skills/tools、
+capability 范围不清楚、design 有阻塞问题、plan 扩大范围、verification
+失败、spec/design drift 改变实现范围、最终 branch/PR 处理。
+
+恢复时,重新运行 `openspec status --change <name> --json`,并检查现有
+artifacts。不要根据聊天历史推断进度。
+
 ### 何时**不**按 opsx(直接 PR)
 
 | 情境 | 直接 PR? |

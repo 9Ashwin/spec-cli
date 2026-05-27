@@ -101,6 +101,12 @@ openspec instructions apply --change "<name>" --json
 
 不要把连续执行委托给 `openspec-continue-change` 或 `/opsx:continue`；那个 skill 设计上会在一个 artifact 后停止。`opsx:super` 自己负责 status -> instructions -> artifact/action -> status 循环，直到遇到下面的停止条件。
 
+把它当作“带门禁的连续工作流”，不是无条件一跑到底的 prompt：
+
+- 只有当前 artifact/action 满足 schema instruction 和 exit gate 时，才自动推进。
+- 恢复时以 OpenSpec status/instructions 和磁盘文件为准，不以对话历史为准。
+- schema instruction 要求用户决策时必须停止并询问。不要替用户默认选择设计确认、范围扩大、验证失败处理或 branch/PR 处理。
+
 只有遇到以下情况才停止：
 
 - schema workflow 已完成。
