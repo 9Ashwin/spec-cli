@@ -4,7 +4,7 @@
 [![Go Version](https://img.shields.io/badge/go-%3E%3D1.23-blue.svg)](https://go.dev/)
 [![npm version](https://img.shields.io/npm/v/spec-cli.svg)](https://www.npmjs.com/package/spec-cli)
 
-OpenSpec + Superpowers workflow scaffolding tool — built for humans and AI Agents. Detects AI coding platforms and installs OpenSpec skills, Superpowers skills, a thin `/comet` entry skill, and schema bundles with a single command.
+OpenSpec + Superpowers workflow scaffolding tool — built for humans and AI Agents. Detects AI coding platforms and installs OpenSpec skills, Superpowers skills, a thin `/opsx:super` entry skill, and schema bundles with a single command.
 
 [Install](#installation--quick-start) · [Commands](#commands) · [Supported Platforms](#supported-platforms) · [How It Works](#how-it-works) · [Development](#development)
 

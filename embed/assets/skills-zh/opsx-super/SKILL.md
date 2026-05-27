@@ -1,5 +1,5 @@
 ---
-name: comet
+name: opsx:super
 description: "用 Superpowers 工作流启动新变更。用户想开发功能或修复 bug 时使用。"
 ---
 

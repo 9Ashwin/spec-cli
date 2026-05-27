@@ -102,16 +102,16 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 		})
 	}
 	for _, p := range detected {
-		skillPath := filepath.Join(projectPath, p.SkillsDir, "skills", "comet", "SKILL.md")
+		skillPath := filepath.Join(projectPath, p.SkillsDir, "skills", "opsx-super", "SKILL.md")
 		if _, err := vfs.Stat(skillPath); err != nil {
 			checks = append(checks, doctorCheck{
 				Name: fmt.Sprintf("Skills: %s", p.Name), Status: "warning",
-				Detail: fmt.Sprintf("%s/skills/comet/SKILL.md not found", p.SkillsDir),
+				Detail: fmt.Sprintf("%s/skills/opsx-super/SKILL.md not found", p.SkillsDir),
 			})
 		} else {
 			checks = append(checks, doctorCheck{
 				Name: fmt.Sprintf("Skills: %s", p.Name), Status: "ok",
-				Detail: fmt.Sprintf("%s/skills/comet/SKILL.md present", p.SkillsDir),
+				Detail: fmt.Sprintf("%s/skills/opsx-super/SKILL.md present", p.SkillsDir),
 			})
 		}
 	}

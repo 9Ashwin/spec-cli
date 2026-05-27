@@ -13,7 +13,7 @@ const (
 	LangZH = "zh"
 )
 
-// CopySkills copies the Comet entry skill from embed to the target platform's
+// CopySkills copies the opsx:super entry skill from embed to the target platform's
 // skills directory. Returns (copied, skipped, error).
 func CopySkills(baseDir, skillsDir, language string, overwrite bool) (int, int, error) {
 	efs := specfs.SkillsFS

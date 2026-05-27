@@ -29,7 +29,7 @@ var initOpts initOptions
 var initCmd = &cobra.Command{
 	Use:   "init [path]",
 	Short: "Initialize workflow scaffolding",
-	Long: `Initialize OpenSpec, Superpowers, Comet entry skill, and schema bundles.
+	Long: `Initialize OpenSpec, Superpowers, opsx:super entry skill, and schema bundles.
 
 Detects AI coding platforms and interactively installs all components.
 Use --yes for non-interactive mode.`,
@@ -157,9 +157,9 @@ func runInit(cmd *cobra.Command, args []string) error {
 		}
 		copied, _, err := skill.CopySkills(baseDir, skillsDir, language, initOpts.overwrite)
 		if err != nil {
-			log("  Comet -> %s: error — %v\n", p.Name, err)
+			log("  opsx:super -> %s: error — %v\n", p.Name, err)
 		} else {
-			log("  Comet -> %s: %d copied\n", p.Name, copied)
+			log("  opsx:super -> %s: %d copied\n", p.Name, copied)
 			cometResults[p.ID] = copied
 		}
 	}
@@ -240,7 +240,7 @@ func selectScope() string {
 func selectLanguage() string {
 	var lang string
 	huh.NewSelect[string]().
-		Title("Language for Comet skills:").
+		Title("Language for opsx:super skills:").
 		Options(
 			huh.NewOption("English", "en"),
 			huh.NewOption("简体中文", "zh"),

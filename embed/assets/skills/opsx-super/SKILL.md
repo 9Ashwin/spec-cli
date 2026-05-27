@@ -1,5 +1,5 @@
 ---
-name: comet
+name: opsx:super
 description: "Start new change with Superpowers workflow. Use when user wants to build a feature or fix a bug."
 ---
 

@@ -16,7 +16,7 @@ var rootCmd = &cobra.Command{
 spec-cli detects AI coding platforms and installs:
   - OpenSpec skills (spec lifecycle management)
   - Superpowers skills (brainstorming, TDD, code review)
-  - Comet entry skill (thin workflow guide)
+  - opsx:super entry skill (thin workflow guide)
   - Schema bundles (workflow definitions for openspec/schemas/)
 
 Commands:
