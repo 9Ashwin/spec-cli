@@ -32,19 +32,19 @@ OpenSpec + Superpowers workflow scaffolding tool — built for humans and AI Age
 
 ### Requirements
 
-- Go 1.23+ (build from source)
-- `openspec` CLI (auto-installed via npm on first `spec-cli init` if missing)
+- Node.js 16+ (`npm`/`npx`)
+- Go 1.23+ (build from source only)
 
 ### Quick Start (Human Users)
 
 ```bash
-# Install from source
+# Option 1 — From npm (recommended):
+npx spec-cli@latest init
+
+# Option 2 — From source:
 git clone https://github.com/9Ashwin/spec-cli.git
 cd spec-cli
 make install
-
-# Or build only
-make build
 ```
 
 ### Quick Start (AI Agent)
@@ -52,15 +52,13 @@ make build
 > The following steps are for AI Agents helping the user with installation.
 
 ```bash
-# Clone and install
+# Option 1 — From npm (recommended):
+npx spec-cli@latest init --yes
+
+# Option 2 — From source:
 git clone https://github.com/9Ashwin/spec-cli.git /tmp/spec-cli
 cd /tmp/spec-cli
 make install
-
-# Verify
-spec-cli --version
-
-# Initialize in the user's project
 cd /path/to/user/project
 spec-cli init --yes
 ```

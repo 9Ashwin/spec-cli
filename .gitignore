@@ -1,5 +1,10 @@
 # Build output
 spec-cli
+dist/
+bin/
+
+# Dependencies
+node_modules/
 
 # IDE
 .idea/

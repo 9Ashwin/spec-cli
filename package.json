@@ -1,0 +1,33 @@
+{
+  "name": "spec-cli",
+  "version": "0.1.0",
+  "description": "OpenSpec + Superpowers workflow scaffolding tool — install OpenSpec, Superpowers, and schema bundles into AI coding platform projects",
+  "bin": {
+    "spec-cli": "scripts/run.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/install.js"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "engines": {
+    "node": ">=16"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/9Ashwin/spec-cli.git"
+  },
+  "license": "MIT",
+  "files": [
+    "scripts/install.js",
+    "scripts/run.js",
+    "checksums.txt"
+  ]
+}
