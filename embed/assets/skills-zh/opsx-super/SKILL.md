@@ -60,6 +60,24 @@ openspec list --json
 - 有多个 active changes：列出它们，询问继续哪一个，或是否创建新 change。
 - 用户要求继续：按 OpenSpec status / instructions 推进已有 change，不要创建新目录。
 
+## 连续执行
+
+不要在创建或选择 change 后停下。
+
+每次 `opsx:super` 调用进入 `superpowers-bridge` 后，都要检查 OpenSpec status 和 schema artifact instructions，然后从下一个未完成的 schema step 继续。对无歧义的步骤自动推进：
+
+brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply -> verify -> retrospective/archive。
+
+只有遇到以下情况才停止：
+
+- schema workflow 已完成。
+- 下一个 schema instruction 需要用户明确决策。
+- OpenSpec status/instructions 缺失，或与项目/用户指令冲突。
+- 必需的 schema step、Superpowers skill、命令或 artifact 缺失。
+- 验证失败，或 schema instruction 要求停止。
+
+不要把对话历史当作进度的事实来源。恢复上下文、工具失败后、推进到下一阶段前，都要重新读取 OpenSpec status/instructions。
+
 ## 创建新 Change
 
 将用户需求转成简短 kebab-case 名称，然后执行：

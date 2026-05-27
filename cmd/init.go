@@ -162,16 +162,7 @@ func runInit(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Step 9: Create working directories
-	specsDir := filepath.Join(projectPath, "docs", "superpowers", "specs")
-	plansDir := filepath.Join(projectPath, "docs", "superpowers", "plans")
-	if scope == ScopeProject {
-		_ = vfs.MkdirAll(specsDir, 0o755)
-		_ = vfs.MkdirAll(plansDir, 0o755)
-		log.printf("\n  Working directories: docs/superpowers/specs/, docs/superpowers/plans/\n")
-	}
-
-	// Step 10: Install schemas
+	// Step 9: Install schemas
 	schemasInstalled := 0
 	schemas, err := schema.ListSchemas()
 	if err == nil && len(schemas) > 0 {

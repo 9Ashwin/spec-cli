@@ -60,6 +60,24 @@ For direct PR cases, tell the user this does not need an `opsx:super` change and
 - Multiple active changes: list them and ask which one to continue, or whether to create a new change.
 - User asks to continue: follow OpenSpec status/instructions for the active change instead of creating a new directory.
 
+## Continuous Execution
+
+Do not stop after creating or selecting a change.
+
+For every `opsx:super` invocation that enters `superpowers-bridge`, inspect OpenSpec status and the schema artifact instructions, then continue from the next incomplete schema step. Advance through unambiguous steps automatically:
+
+brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply -> verify -> retrospective/archive.
+
+Stop only when one of these happens:
+
+- The schema workflow is complete.
+- The next schema instruction requires an explicit user decision.
+- OpenSpec status/instructions are unavailable or conflict with project/user instructions.
+- A required schema step, Superpowers skill, command, or artifact is missing.
+- Verification fails or the schema instruction says to stop.
+
+Do not use conversation history as the source of truth for progress. Re-read OpenSpec status/instructions on resume, after tool failures, and before advancing to the next phase.
+
 ## Create A New Change
 
 Convert the user's request to a short kebab-case name, then run:
