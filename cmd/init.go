@@ -164,7 +164,6 @@ func runInit(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-
 	// Step 9: Install schemas
 	schemasInstalled := 0
 	schemas, err := schema.ListSchemas()
