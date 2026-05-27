@@ -298,7 +298,7 @@ func selectPlatforms(detected []platform.Platform) []platform.Platform {
 		options = append(options, huh.NewOption(label, p.ID))
 	}
 
-	var selected []string
+	selected := defaultSelected
 	huh.NewMultiSelect[string]().
 		Title("Select AI coding platforms:").
 		Options(options...).
