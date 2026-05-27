@@ -54,7 +54,6 @@ type initResult struct {
 	Superpowers       string         `json:"superpowers"`
 	Comet             map[string]int `json:"comet"`
 	SchemasInstalled  int            `json:"schemasInstalled"`
-	WorkingDirs       bool           `json:"workingDirsCreated"`
 }
 
 func runInit(cmd *cobra.Command, args []string) error {
@@ -165,22 +164,8 @@ func runInit(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	// Step 9: Create working directories (project scope only)
-	workingDirs := false
-	if scope == "project" {
-		specsDir := filepath.Join(projectPath, "docs", "superpowers", "specs")
-		plansDir := filepath.Join(projectPath, "docs", "superpowers", "plans")
-		if err := vfs.MkdirAll(specsDir, 0o755); err == nil {
-			if err := vfs.MkdirAll(plansDir, 0o755); err == nil {
-				workingDirs = true
-			}
-		}
-		if workingDirs {
-			log("\n  Working directories: docs/superpowers/specs/, docs/superpowers/plans/\n")
-		}
-	}
 
-	// Step 10: Install schemas
+	// Step 9: Install schemas
 	schemasInstalled := 0
 	schemas, err := schema.ListSchemas()
 	if err == nil && len(schemas) > 0 {
@@ -231,7 +216,6 @@ func runInit(cmd *cobra.Command, args []string) error {
 			Superpowers:       superpowersStatus,
 			Comet:             cometResults,
 			SchemasInstalled:  schemasInstalled,
-			WorkingDirs:       workingDirs,
 		})
 	}
 

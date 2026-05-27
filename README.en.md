@@ -137,7 +137,7 @@ Claude Code, Cursor, Codex, OpenCode, Windsurf, Cline, RooCode, Continue, GitHub
 
 ## How It Works
 
-`spec-cli init` runs a 10-step flow:
+`spec-cli init` runs a 9-step flow:
 
 1. Detect installed AI coding platforms
 2. Select install scope (project / global)
@@ -146,9 +146,9 @@ Claude Code, Cursor, Codex, OpenCode, Windsurf, Cline, RooCode, Continue, GitHub
 5. Install OpenSpec CLI + `openspec init <path> --tools <ids>`
 6. Detect Superpowers plugin installation
 7. Copy Comet entry skill to platform skills directories
-8. Create working directories (`docs/superpowers/specs/`, `docs/superpowers/plans/`)
-9. Install schema bundles to `openspec/schemas/<name>/`
-10. Append CLAUDE.md workflow fragment
+8. Install schema bundles to `openspec/schemas/<name>/`
+9. Append CLAUDE.md workflow fragment
+9. Append CLAUDE.md workflow fragment
 
 Workflow execution is delegated to OpenSpec's native `--schema` mechanism — spec-cli handles scaffolding only.
 

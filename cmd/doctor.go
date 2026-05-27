@@ -63,24 +63,7 @@ func runDoctor(cmd *cobra.Command, args []string) error {
 		})
 	}
 
-	// Check 2: Working directories
-	specsDir := filepath.Join(projectPath, "docs", "superpowers", "specs")
-	plansDir := filepath.Join(projectPath, "docs", "superpowers", "plans")
-	_, specsErr := vfs.Stat(specsDir)
-	_, plansErr := vfs.Stat(plansDir)
-	if specsErr != nil || plansErr != nil {
-		checks = append(checks, doctorCheck{
-			Name: "Working Directories", Status: "warning",
-			Detail: "docs/superpowers/specs/ or plans/ missing — run spec-cli init",
-		})
-	} else {
-		checks = append(checks, doctorCheck{
-			Name: "Working Directories", Status: "ok",
-			Detail: "docs/superpowers/specs/, docs/superpowers/plans/",
-		})
-	}
-
-	// Check 3: Schema bundles
+	// Check 2: Schema bundles
 	schemas, err := schema.ListSchemas()
 	if err != nil {
 		checks = append(checks, doctorCheck{
