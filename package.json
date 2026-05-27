@@ -1,13 +1,13 @@
 {
   "name": "ashwin-spec",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "OpenSpec + Superpowers workflow scaffolding tool — install OpenSpec, Superpowers, and schema bundles into AI coding platform projects",
   "bin": {
     "spec-cli": "scripts/run.js"
   },
   "scripts": {
     "postinstall": "node scripts/install.js",
-    "prepare": "husky"
+    "prepare": "husky || exit 0"
   },
   "os": [
     "darwin",
