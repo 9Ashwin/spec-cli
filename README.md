@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Go Version](https://img.shields.io/badge/go-%3E%3D1.23-blue.svg)](https://go.dev/)
-[![npm version](https://img.shields.io/npm/v/spec-cli.svg)](https://www.npmjs.com/package/spec-cli)
+[![npm version](https://img.shields.io/npm/v/ashwin-spec.svg)](https://www.npmjs.com/package/ashwin-spec)
 
 OpenSpec + Superpowers 工作流脚手架工具 — 为人类和 AI Agent 而生。一条命令即可检测 AI 编码平台，并安装 OpenSpec skill、Superpowers skill、`/opsx:super` 入口 skill 以及 schema 套件。
 
