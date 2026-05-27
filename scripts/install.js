@@ -6,7 +6,8 @@ const crypto = require("crypto");
 
 const VERSION = require("../package.json").version;
 const REPO = "9Ashwin/spec-cli";
-const NAME = "ashwin-spec";
+const PKG = "ashwin-spec";
+const NAME = "spec-cli";  // GoReleaser binary name
 
 const PLATFORM_MAP = {
   darwin: "darwin",

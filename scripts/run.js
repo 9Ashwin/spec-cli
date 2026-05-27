@@ -5,7 +5,7 @@ const fs = require("fs");
 const path = require("path");
 
 const ext = process.platform === "win32" ? ".exe" : "";
-const bin = path.join(__dirname, "..", "bin", "ashwin-spec" + ext);
+const bin = path.join(__dirname, "..", "bin", "spec-cli" + ext);
 const args = process.argv.slice(2);
 
 // Auto-download binary if missing (e.g. npx skipped postinstall).
