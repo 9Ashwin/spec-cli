@@ -1,0 +1,78 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fast-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        run: go build ./...
+
+      - name: Vet
+        run: go vet ./...
+
+      - name: Check formatting
+        run: |
+          unformatted=$(gofmt -l .)
+          if [ -n "$unformatted" ]; then
+            echo "$unformatted"
+            echo "::error::Unformatted Go files detected — run 'gofmt -w .' and commit"
+            exit 1
+          fi
+
+      - name: Check go.mod tidiness
+        run: |
+          go mod tidy
+          if ! git diff --quiet go.mod go.sum; then
+            echo "::error::go.mod or go.sum is not tidy. Run 'go mod tidy' and commit."
+            git diff go.mod go.sum
+            exit 1
+          fi
+
+  unit-test:
+    needs: fast-gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Run tests
+        run: go test -v -race -count=1 -timeout=5m ./...
+
+  results:
+    if: ${{ always() }}
+    needs: [fast-gate, unit-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Evaluate results
+        run: |
+          echo "| Job | Result |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| fast-gate | ${{ needs.fast-gate.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| unit-test | ${{ needs.unit-test.result }} |" >> $GITHUB_STEP_SUMMARY
+
+          for result in "${{ needs.fast-gate.result }}" "${{ needs.unit-test.result }}"; do
+            if [ "$result" = "failure" ] || [ "$result" = "cancelled" ]; then
+              echo "" >> $GITHUB_STEP_SUMMARY
+              echo "::error::One or more CI jobs failed"
+              exit 1
+            fi
+          done
