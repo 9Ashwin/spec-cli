@@ -286,23 +286,26 @@ func selectPlatforms(detected []platform.Platform) []platform.Platform {
 		detectedSet[p.ID] = true
 	}
 
-	// Build multi-select options with detected platforms pre-selected.
+	// Pre-select detected platforms. If none detected, pre-select all.
+	selected := make([]string, 0, len(platform.AllPlatforms))
 	options := make([]huh.Option[string], 0, len(platform.AllPlatforms))
-	defaultSelected := make([]string, 0, len(detected))
 	for _, p := range platform.AllPlatforms {
 		label := p.Name
 		if detectedSet[p.ID] {
 			label += " (detected)"
-			defaultSelected = append(defaultSelected, p.ID)
 		}
 		options = append(options, huh.NewOption(label, p.ID))
+		if len(detected) == 0 || detectedSet[p.ID] {
+			selected = append(selected, p.ID)
+		}
 	}
 
-	selected := defaultSelected
 	huh.NewMultiSelect[string]().
-		Title("Select AI coding platforms:").
+		Title("Select AI coding platforms").
+		Description("x: toggle • ↑↓: move • enter: confirm").
 		Options(options...).
 		Value(&selected).
+		Filterable(true).
 		Run()
 
 	if len(selected) == 0 {
