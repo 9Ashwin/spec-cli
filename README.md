@@ -4,45 +4,45 @@
 [![Go Version](https://img.shields.io/badge/go-%3E%3D1.23-blue.svg)](https://go.dev/)
 [![npm version](https://img.shields.io/npm/v/spec-cli.svg)](https://www.npmjs.com/package/spec-cli)
 
-OpenSpec + Superpowers workflow scaffolding tool — built for humans and AI Agents. Detects AI coding platforms and installs OpenSpec skills, Superpowers skills, a thin `/comet` entry skill, and schema bundles with a single command.
+OpenSpec + Superpowers 工作流脚手架工具 — 为人类和 AI Agent 而生。一条命令即可检测 AI 编码平台，并安装 OpenSpec skill、Superpowers skill、`/comet` 入口 skill 以及 schema 套件。
 
-[Install](#installation--quick-start) · [Commands](#commands) · [Supported Platforms](#supported-platforms) · [How It Works](#how-it-works) · [Development](#development)
+[安装](#安装与快速开始) · [命令](#命令) · [支持的平台](#支持的平台) · [工作原理](#工作原理) · [开发](#开发)
 
-## Why spec-cli?
+## 为什么选择 spec-cli？
 
-- **Zero-Config Detection** — auto-detects 29 AI coding platforms, no manual config needed
-- **Single Command Setup** — `spec-cli init` scaffolds the complete OpenSpec + Superpowers workflow
-- **Agent-Native** — installs skills that AI coding agents understand natively
-- **Schema-Driven Workflows** — delegates execution to OpenSpec's `--schema` mechanism, no phase state management
-- **Single Binary** — clean-room Go rewrite, zero npm runtime dependencies (except openspec CLI itself)
-- **Interactive & Non-Interactive** — huh-powered prompts for humans, `--yes` + `--json` flags for agents and scripts
+- **零配置检测** — 自动识别 29 种 AI 编码平台，无需手动配置
+- **一条命令搞定** — `spec-cli init` 一键搭建完整的 OpenSpec + Superpowers 工作流
+- **Agent 原生** — 安装的 skill 可被 AI 编码 Agent 原生理解
+- **Schema 驱动执行** — 将执行委托给 OpenSpec 的 `--schema` 机制，无需管理阶段状态
+- **单二进制文件** — Go 重写，零 npm 运行时依赖（openspec CLI 本身除外）
+- **交互式 & 非交互式** — 基于 huh 的交互提示给人类用，`--yes` + `--json` 标志给 Agent 和脚本用
 
-## Installation & Quick Start
+## 安装与快速开始
 
-### Requirements
+### 环境要求
 
-Before you start, make sure you have:
+开始之前，请确保已安装：
 
-- Node.js 16+ (`npm`/`npx`)
-- Go 1.23+ (only required for building from source)
+- Node.js 16+（`npm`/`npx`）
+- Go 1.23+（仅从源码构建时需要）
 
-### Quick Start (Human Users)
+### 快速开始（人类用户）
 
-> **Note for AI assistants:** If you are an AI Agent helping the user with installation, jump directly to [Quick Start (AI Agent)](#quick-start-ai-agent), which contains all the steps you need to complete.
+> **AI 助手请注意：** 如果你是一个帮助用户安装的 AI Agent，请直接跳转到[快速开始（AI Agent）](#快速开始ai-agent)，其中包含你需要完成的所有步骤。
 
-#### Install
+#### 安装
 
-Choose **one** of the following methods:
+选择以下**一种**方式：
 
-**Option 1 — From npm (recommended):**
+**方式一 — 从 npm 安装（推荐）：**
 
 ```bash
 npx spec-cli@latest init
 ```
 
-**Option 2 — From source:**
+**方式二 — 从源码安装：**
 
-Requires Go 1.23+.
+需要 Go 1.23+。
 
 ```bash
 git clone https://github.com/9Ashwin/spec-cli.git
@@ -50,75 +50,75 @@ cd spec-cli
 make install
 ```
 
-#### Use
+#### 使用
 
 ```bash
-# 1. Initialize workflow scaffolding (interactive)
+# 1. 初始化工作流脚手架（交互式）
 spec-cli init
 
-# 2. Check active changes
+# 2. 查看当前变更状态
 spec-cli status
 
-# 3. Diagnose installation health
+# 3. 诊断安装健康度
 spec-cli doctor
 ```
 
-## Quick Start (AI Agent)
+## 快速开始（AI Agent）
 
-> The following steps are for AI Agents helping the user with installation.
+> 以下步骤供 AI Agent 帮助用户安装时使用。
 
-**Step 1 — Install & Initialize**
+**第一步 — 安装并初始化**
 
 ```bash
 npx spec-cli@latest init --yes
 ```
 
-**Step 2 — Verify**
+**第二步 — 验证**
 
 ```bash
 spec-cli doctor
 ```
 
-**Step 3 — Start working**
+**第三步 — 开始工作**
 
 ```bash
-# Create a new change with the superpowers-bridge schema
-openspec new --schema superpowers-bridge "your feature idea"
+# 使用 superpowers-bridge schema 创建新变更
+openspec new --schema superpowers-bridge "你的功能描述"
 ```
 
-## Features
+## 功能
 
-| Category | Capabilities |
-|----------|-------------|
-| Platform Detection | Auto-detect 29 AI coding platforms from project files |
-| OpenSpec Install | `openspec init` with `--tools` for detected platforms, auto-install CLI if missing |
-| Superpowers Detection | Check Claude Code plugin cache for installed Superpowers skills |
-| Skill Copy | Copy Comet entry skill from embed to platform skills directories |
-| Schema Bundles | Install workflow schema bundles to `openspec/schemas/` with CLAUDE.md fragments |
-| Health Check | `spec-cli doctor` diagnoses OpenSpec CLI, working dirs, schemas, and skill files |
-| Update | `spec-cli update` refreshes skills from embed and upgrades schema versions |
+| 类别 | 能力 |
+|------|------|
+| 平台检测 | 从项目文件中自动检测 29 种 AI 编码平台 |
+| OpenSpec 安装 | `openspec init` 附带 `--tools` 指定检测到的平台，CLI 缺失时自动安装 |
+| Superpowers 检测 | 检查 Claude Code 插件缓存，判断已安装的 Superpowers skill |
+| Skill 复制 | 将 Comet 入口 skill 从内嵌资源复制到平台 skill 目录 |
+| Schema 套件 | 安装工作流 schema 套件到 `openspec/schemas/`，附带 CLAUDE.md 片段 |
+| 健康检查 | `spec-cli doctor` 诊断 OpenSpec CLI、工作目录、schema 和 skill 文件状态 |
+| 更新 | `spec-cli update` 从内嵌资源刷新 skill 并升级 schema 版本 |
 
-## Commands
+## 命令
 
-| Command | Description |
-|---------|-------------|
-| `spec-cli init [path]` | Initialize workflow scaffolding (interactive by default) |
-| `spec-cli status [path]` | Show active workflow changes |
-| `spec-cli update [path]` | Update skills and schema bundles |
-| `spec-cli doctor [path]` | Diagnose installation health |
+| 命令 | 说明 |
+|------|------|
+| `spec-cli init [path]` | 初始化工作流脚手架（默认交互式） |
+| `spec-cli status [path]` | 查看当前工作流变更状态 |
+| `spec-cli update [path]` | 更新 skill 和 schema 套件 |
+| `spec-cli doctor [path]` | 诊断安装健康度 |
 
-### Init Flags
+### Init 参数
 
 ```
 spec-cli init [path]
-  --yes               Non-interactive, auto-select detected platforms
+  --yes               非交互模式，自动选择检测到的平台
   --scope <scope>     project | global
-  --skip-existing     Skip already installed components
-  --overwrite         Overwrite all existing components
-  --json              Output structured JSON result
+  --skip-existing     跳过已安装的组件
+  --overwrite         覆盖所有已存在的组件
+  --json              输出结构化 JSON 结果
 ```
 
-### Shell Completion
+### Shell 补全
 
 ```bash
 # bash
@@ -131,37 +131,37 @@ source <(spec-cli completion zsh)
 spec-cli completion fish | source
 ```
 
-## Supported Platforms
+## 支持的平台
 
-Claude Code, Cursor, Codex, OpenCode, Windsurf, Cline, RooCode, Continue, GitHub Copilot, Gemini CLI, Amazon Q Developer, Qwen Code, Kilo Code, Auggie, Kiro, Lingma, Junie, CodeBuddy Code, CoStrict, Crush, Factory Droid, iFlow, Pi, Qoder, Antigravity, Bob Shell, ForgeCode, Trae
+Claude Code、Cursor、Codex、OpenCode、Windsurf、Cline、RooCode、Continue、GitHub Copilot、Gemini CLI、Amazon Q Developer、Qwen Code、Kilo Code、Auggie、Kiro、Lingma、Junie、CodeBuddy Code、CoStrict、Crush、Factory Droid、iFlow、Pi、Qoder、Antigravity、Bob Shell、ForgeCode、Trae
 
-## How It Works
+## 工作原理
 
-`spec-cli init` runs a 10-step flow:
+`spec-cli init` 执行 10 步流程：
 
-1. Detect installed AI coding platforms
-2. Select install scope (project / global)
-3. Select language (English / 简体中文)
-4. Select target platforms
-5. Install OpenSpec CLI + `openspec init <path> --tools <ids>`
-6. Detect Superpowers plugin installation
-7. Copy Comet entry skill to platform skills directories
-8. Create working directories (`docs/superpowers/specs/`, `docs/superpowers/plans/`)
-9. Install schema bundles to `openspec/schemas/<name>/`
-10. Append CLAUDE.md workflow fragment
+1. 检测已安装的 AI 编码平台
+2. 选择安装范围（项目级 / 全局级）
+3. 选择语言（English / 简体中文）
+4. 选择目标平台
+5. 安装 OpenSpec CLI + `openspec init <path> --tools <ids>`
+6. 检测 Superpowers 插件安装状态
+7. 将 Comet 入口 skill 复制到平台 skill 目录
+8. 创建工作目录（`docs/superpowers/specs/`、`docs/superpowers/plans/`）
+9. 安装 schema 套件到 `openspec/schemas/<name>/`
+10. 追加 CLAUDE.md 工作流片段
 
-Workflow execution is delegated to OpenSpec's native `--schema` mechanism — spec-cli handles scaffolding only.
+工作流执行委托给 OpenSpec 原生的 `--schema` 机制 — spec-cli 只负责脚手架搭建。
 
-## Development
+## 开发
 
 ```bash
-make build      # Build binary
-make test       # Run tests with race detector
-make vet        # Run go vet
-make fmt        # Format source files
-make fmt-check  # Check formatting (CI)
-make install    # Install to /usr/local/bin
-make clean      # Remove binary
+make build      # 构建二进制文件
+make test       # 运行测试（带竞态检测）
+make vet        # 运行 go vet
+make fmt        # 格式化源码
+make fmt-check  # 检查格式（CI 用）
+make install    # 安装到 /usr/local/bin
+make clean      # 清理二进制文件
 ```
 
 ## License

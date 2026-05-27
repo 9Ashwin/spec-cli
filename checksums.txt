@@ -1,0 +1,6 @@
+fb30b2a519c517690a48492285372d41e06e8323e6fbb1cc4b850824b3e654fe  spec-cli-0.1.0-darwin-amd64.tar.gz
+d7bc702cc67396abdb4a57fc5ca19c33b18dfdfab8a0018790513e259ab709bf  spec-cli-0.1.0-darwin-arm64.tar.gz
+1ee4caa9c97767d4ce9434f611a4d0c0d76a941c1e4574ab3f854b3d8ceb1f98  spec-cli-0.1.0-linux-amd64.tar.gz
+613ead9dac994ed0801f65bb6bf2c7e65884d54d1339ae72aee9fb5d817d3f55  spec-cli-0.1.0-linux-arm64.tar.gz
+b99e200309463e7630ffdfdc658bc50416369fc8bcc1f7c736f0f0096f0d888c  spec-cli-0.1.0-windows-amd64.zip
+c44e522bb27d0429f87883404dd5a7574c87b28da2f588302f5fe6e1c5dbe760  spec-cli-0.1.0-windows-arm64.zip
