@@ -10,7 +10,7 @@
 
 | 你看到的触发 | 应该如何做 |
 |---|---|
-| 用户以 narrative 开“设计讨论 / 头脑风暴” | 先 verbal `superpowers:brainstorming`,**不**写到 `docs/superpowers/specs/`;对话收敛后依下方 5 条判断标准升级到 `/opsx:propose` |
+| 用户以 narrative 开“设计讨论 / 头脑风暴” | 先 verbal `brainstorming`,**不**写到 `docs/superpowers/specs/`;对话收敛后依下方 5 条判断标准升级到 `/opsx:propose` |
 | 用户直接调用 `/opsx:new` / `/opsx:ff` / `/opsx:propose` | 按 schema 规定的流程;artifact instruction 会在每步注入 |
 | 用户明确说 bug fix / typo / config 微调 / 文件更新 | 直接 PR,**不**建 change(见下方 skip 规则) |
 | 已经在某个 change 中 | `/opsx:continue` 或 `/opsx:apply` / `/opsx:verify` / `/opsx:archive` 持续推进 |

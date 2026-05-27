@@ -1,6 +1,6 @@
 # [Feature Name] Implementation Plan
 
-> **For agentic workers:** Use superpowers:subagent-driven-development
+> **For agentic workers:** Use subagent-driven-development
 > to implement this plan task-by-task.
 
 **Goal:** <!-- One sentence -->
