@@ -1,14 +1,14 @@
 ---
 name: opsx:super
-description: "用 Superpowers 工作流启动新变更。用户想开发功能或修复 bug 时使用。"
+description: "用 Superpowers 工作流启动新变更。"
 ---
 
-# Comet
+# opsx:super
 
-调用时直接执行：
+调用时将用户描述转为 kebab-case 命名，然后执行：
 
 ```bash
-openspec new --schema superpowers-bridge "<描述>"
+openspec new change --schema superpowers-bridge "<kebab-case-名称>"
 ```
 
-然后按 schema 注入的产物指令逐步推进（proposal → design → plan → tasks → verify → archive）。
+然后按产物指令推进（brainstorm → design → specs → tasks → plan → apply → verify → archive）。

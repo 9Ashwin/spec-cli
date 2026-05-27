@@ -1,14 +1,14 @@
 ---
 name: opsx:super
-description: "Start new change with Superpowers workflow. Use when user wants to build a feature or fix a bug."
+description: "Start new change with Superpowers workflow."
 ---
 
-# Comet
+# opsx:super
 
-When invoked, run:
+When invoked, convert the user's description to a kebab-case name, then run:
 
 ```bash
-openspec new --schema superpowers-bridge "<description>"
+openspec new change --schema superpowers-bridge "<kebab-case-name>"
 ```
 
-Then follow the artifact instructions from the schema step by step (proposal → design → plan → tasks → verify → archive).
+Then follow the artifact instructions (brainstorm → design → specs → tasks → plan → apply → verify → archive).
