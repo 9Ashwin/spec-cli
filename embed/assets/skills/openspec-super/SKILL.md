@@ -1,5 +1,5 @@
 ---
-name: opsx-super
+name: openspec-super
 description: "Use when the user wants to start, route, or continue OpenSpec + Superpowers work through /opsx:super."
 ---
 
