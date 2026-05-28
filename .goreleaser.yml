@@ -28,7 +28,7 @@ checksum:
 
 changelog:
   sort: asc
-  format: "* {{ .Message }}"
+  format: "{{ .Message }}"
   filters:
     exclude:
       - '^docs:'
