@@ -162,13 +162,13 @@ func runInit(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-		// Also copy opsx commands for Claude Code.
-		copied, _, cmdErr := skill.CopyCommands(baseDir, initOpts.overwrite)
-		if cmdErr != nil {
-			log.printf("  opsx commands: error — %v\n", cmdErr)
-		} else if copied > 0 {
-			log.printf("  opsx commands: %d copied\n", copied)
-		}
+	// Also copy opsx commands for Claude Code.
+	copied, _, cmdErr := skill.CopyCommands(baseDir, initOpts.overwrite)
+	if cmdErr != nil {
+		log.printf("  opsx commands: error — %v\n", cmdErr)
+	} else if copied > 0 {
+		log.printf("  opsx commands: %d copied\n", copied)
+	}
 
 	// Step 9: Install schemas
 	schemasInstalled := 0
