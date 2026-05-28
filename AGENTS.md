@@ -138,9 +138,4 @@ The primary users are humans working with AI coding tools, and AI agents automat
 - For npm releases: push a `v*` tag. The release workflow runs GoReleaser (build + GitHub release) then publishes to npm via `NPM_TOKEN`. The token is stored as a GitHub Actions secret — no local npm authentication is needed.
 - Do not push the tag until the matching commit is on `main` and `make test` + `make lint` pass, because postinstall may fall back to GitHub release downloads when packaged archives are absent.
 
-## Reference Projects
 
-| Project | Path | Useful patterns |
-|---------|------|-----------------|
-| lark-cli | `/Users/mervyn/workspaces/github/cli` | Agent-first CLI output, VFS conventions, Cobra structure, release/install patterns |
-| Memoh | `/Users/mervyn/workspaces/github/Memoh` | Rich AGENTS architecture docs, workspace/runtime boundaries, agent harness ideas to evaluate separately |
