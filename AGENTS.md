@@ -135,9 +135,8 @@ The primary users are humans working with AI coding tools, and AI agents automat
 - Binary name: `spec-cli`
 - Release artifacts are built by `make release` / GoReleaser for darwin, linux, and windows.
 - `scripts/install.js` downloads the matching archive and verifies checksums; keep installer changes conservative and cross-platform.
-- For npm releases, bump `package.json`, run `make release VERSION=<npm-version>`, copy `dist/checksums.txt` to the repository root, and verify archive names match `spec-cli-<version>-<os>-<arch>`.
-- `npm publish` requires an authenticated npm session with publish access to `ashwin-spec`; check `npm whoami` before the final publish step.
-- Do not publish a version until the matching git commit and tag have been pushed, because postinstall may fall back to GitHub release downloads when packaged archives are absent.
+- For npm releases: push a `v*` tag. The release workflow runs GoReleaser (build + GitHub release) then publishes to npm via `NPM_TOKEN`. The token is stored as a GitHub Actions secret — no local npm authentication is needed.
+- Do not push the tag until the matching commit is on `main` and `make test` + `make lint` pass, because postinstall may fall back to GitHub release downloads when packaged archives are absent.
 
 ## Reference Projects
 

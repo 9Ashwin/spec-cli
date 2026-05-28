@@ -8,8 +8,11 @@ description: "当用户要通过 /opsx:super 启动、路由或继续 OpenSpec +
 把它作为 OpenSpec + Superpowers 工作的统一入口。它负责路由：判断是否需要 schema change，避免重复创建 active change，然后把执行交给 OpenSpec 的 `superpowers-bridge` schema。
 
 <EXTREMELY-IMPORTANT>
-如果请求进入 `superpowers-bridge`，不要在创建或选择 change 后停下。
-始终检查 OpenSpec status、读取 schema artifact instructions、调用必需的 Superpowers skills，并持续推进到明确的停止条件。
+这是一个 GATED 工作流。每个阶段（brainstorm, proposal, design, specs, tasks, plan, apply, verify）在 schema artifact 指令中定义了 exit gate，你必须遵守每一个 gate。每当 gate 需要用户输入时必须暂停——尤其是 brainstorm 审批、design 确认、范围变更、验证失败处理、分支/PR 决策。
+
+第一个硬性 gate 是 brainstorm → proposal。brainstorm 的 EXIT GATE 写着："Stop here until the user has approved the proposed design direction." 在用户明确批准之前，不要写 proposal.md，不要推进下一步。
+
+仅在阶段结果明确且 exit gate 已满足时才自动推进。schema exit gate 说停就停，停下来问用户。
 </EXTREMELY-IMPORTANT>
 
 ## 指令优先级
@@ -69,7 +72,7 @@ openspec list --json
 
 ## 连续执行
 
-不要在创建或选择 change 后停下。
+创建或选择 change 后，进入下方的 Continuous Execution 循环。仅在 exit gate 满足时才自动推进——第一个 gate（brainstorm 审批）最关键，不要跳过它。
 
 每次 `opsx:super` 调用进入 `superpowers-bridge` 后，都要先检查 OpenSpec status：
 
@@ -77,11 +80,15 @@ openspec list --json
 openspec status --change "<name>" --json
 ```
 
-然后读取当前 schema artifact instructions，从下一个未完成的 schema step 继续。对无歧义的步骤自动推进：
+然后读取当前的 schema artifact 指令，从下一个未完成的 schema 步骤继续。推进到下一阶段前，验证当前阶段的 EXIT GATE（定义在 schema artifact 指令中）已满足。gate 需要用户输入就停止并询问。已完成的明确步骤自动推进：
 
 brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply action -> verify -> retrospective/archive。
 
 每个 schema step 由 schema instructions 决定适用哪个 Superpowers skill。先调用相关 Superpowers skill，再执行该 schema step。不要在 schema step 要求 skill 时凭记忆手写 artifact。
+
+Skill 输出路径覆盖（schema artifact 指令优先于 skill 默认值）：
+- **brainstorming**：该 skill 的默认输出路径是 `docs/superpowers/specs/`，默认终端状态是调用 `writing-plans`。在 superpowers-bridge 下运行时，两者均需覆盖：将原始 brainstorming 输出写入 change 的 `brainstorm.md`（按 schema artifact 指令），用户审批设计方案后进入 **proposal** artifact——不要调用 writing-plans。
+- **writing-plans**：该 skill 的默认输出路径是 `docs/superpowers/plans/`。在 superpowers-bridge 下运行时，将计划写入 change 的 `plan.md`。
 
 artifact step 要从 OpenSpec 取得具体 instructions：
 
