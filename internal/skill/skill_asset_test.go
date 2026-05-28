@@ -17,7 +17,7 @@ func TestOpsxSuperSkillHasFrontDoorGuardrails(t *testing.T) {
 	required := []string{
 		"description: \"Use when",
 		"<EXTREMELY-IMPORTANT>",
-		"If the request enters `superpowers-bridge`, do not stop after creating or selecting a change.",
+		"This is a GATED workflow",
 		"Instruction Priority",
 		"User instructions always take precedence",
 		"STOP",
@@ -56,7 +56,7 @@ func TestOpsxSuperChineseSkillHasSameGuardrails(t *testing.T) {
 	required := []string{
 		"指令优先级",
 		"<EXTREMELY-IMPORTANT>",
-		"如果请求进入 `superpowers-bridge`，不要在创建或选择 change 后停下。",
+		"这是门控工作流",
 		"用户指令始终优先",
 		"停止",
 		"openspec list --json",
