@@ -8,8 +8,11 @@ description: "Use when the user wants to start, route, or continue OpenSpec + Su
 Use this as the front door for OpenSpec + Superpowers work. Its job is routing: decide whether this needs a schema change, avoid duplicate active changes, then hand execution to OpenSpec's `superpowers-bridge` schema.
 
 <EXTREMELY-IMPORTANT>
-If the request enters `superpowers-bridge`, do not stop after creating or selecting a change.
-Always inspect OpenSpec status, read schema artifact instructions, invoke the required Superpowers skills, and continue until a defined stop condition.
+This is a GATED workflow. Each phase (brainstorm, proposal, design, specs, tasks, plan, apply, verify) has an exit gate defined in the schema artifact instructions. You MUST pause at every gate that requires user input — especially brainstorm approval, design sign-off, scope changes, verification failure handling, and branch/PR decisions.
+
+The first hard gate is brainstorm → proposal. The brainstorm EXIT GATE says: "Stop here until the user has approved the proposed design direction." Do NOT write proposal.md or advance further until the user explicitly approves.
+
+Auto-advance through unambiguous completed phases only. When a schema exit gate says to stop, stop and ask.
 </EXTREMELY-IMPORTANT>
 
 ## Instruction Priority
@@ -69,7 +72,7 @@ For direct PR cases, tell the user this does not need an `opsx:super` change and
 
 ## Continuous Execution
 
-Do not stop after creating or selecting a change.
+After creating or selecting a change, enter the Continuous Execution loop below. Auto-advance through phases only when exit gates are satisfied — the first gate (brainstorm approval) is the most critical. Do not skip it.
 
 For every `opsx:super` invocation that enters `superpowers-bridge`, inspect OpenSpec status first:
 
@@ -77,7 +80,7 @@ For every `opsx:super` invocation that enters `superpowers-bridge`, inspect Open
 openspec status --change "<name>" --json
 ```
 
-Then read the current schema artifact instructions and continue from the next incomplete schema step. Advance through unambiguous steps automatically:
+Then read the current schema artifact instructions and continue from the next incomplete schema step. Before advancing to the next phase, verify the current phase's EXIT GATE (defined in the schema artifact instruction) is satisfied. If the gate requires user input, STOP and ask. Advance through unambiguous completed steps automatically:
 
 brainstorm -> proposal -> design -> specs -> tasks -> plan -> apply action -> verify -> retrospective/archive.
 
