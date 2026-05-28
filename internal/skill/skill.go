@@ -66,3 +66,51 @@ func CopySkills(baseDir, skillsDir, language string, overwrite bool) (int, int, 
 
 	return copied, skipped, err
 }
+
+// CopyCommands copies opsx command files from embed to the target platform's
+// commands directory. Returns (copied, skipped, error).
+func CopyCommands(baseDir string, overwrite bool) (int, int, error) {
+	sourceDir := "assets/commands"
+	var copied, skipped int
+
+	err := fs.WalkDir(specfs.CommandsFS, sourceDir, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+		if d.IsDir() {
+			return nil
+		}
+
+		relPath, err := filepath.Rel(sourceDir, path)
+		if err != nil {
+			return err
+		}
+
+		dest := filepath.Join(baseDir, ".claude", "commands", relPath)
+
+		if !overwrite {
+			if _, statErr := vfs.Stat(dest); statErr == nil {
+				skipped++
+				return nil
+			}
+		}
+
+		data, readErr := specfs.CommandsFS.ReadFile(path)
+		if readErr != nil {
+			return readErr
+		}
+
+		if mkdirErr := vfs.MkdirAll(filepath.Dir(dest), 0o755); mkdirErr != nil {
+			return mkdirErr
+		}
+
+		if writeErr := vfs.WriteFile(dest, data, 0o644); writeErr != nil {
+			return writeErr
+		}
+
+		copied++
+		return nil
+	})
+
+	return copied, skipped, err
+}

@@ -1,5 +1,5 @@
 ---
-name: opsx:super
+name: opsx-super
 description: "当用户要通过 /opsx:super 启动、路由或继续 OpenSpec + Superpowers 工作时使用。"
 ---
 
